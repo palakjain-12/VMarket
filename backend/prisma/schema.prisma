@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Shopkeeper {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  name        String
+  phone       String?
+  shopName    String   @map("shop_name")
+  address     String
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  products           Product[]
+  exportRequestsFrom ExportRequest[] @relation("ExportRequestFrom")
+  exportRequestsTo   ExportRequest[] @relation("ExportRequestTo")
+
+  @@map("shopkeepers")
+}
+
+model Product {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  price       Decimal   @db.Decimal(10, 2)
+  quantity    Int
+  expiryDate  DateTime? @map("expiry_date")
+  category    String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  shopkeeperId String     @map("shopkeeper_id")
+  shopkeeper   Shopkeeper @relation(fields: [shopkeeperId], references: [id], onDelete: Cascade)
+
+  exportRequests ExportRequest[]
+
+  @@map("products")
+}
+
+model ExportRequest {
+  id        String              @id @default(cuid())
+  quantity  Int
+  status    ExportRequestStatus @default(PENDING)
+  message   String?
+  createdAt DateTime            @default(now()) @map("created_at")
+  updatedAt DateTime            @updatedAt @map("updated_at")
+
+  // Relations
+  productId    String     @map("product_id")
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  fromShopId   String     @map("from_shop_id")
+  fromShop     Shopkeeper @relation("ExportRequestFrom", fields: [fromShopId], references: [id], onDelete: Cascade)
+  toShopId     String     @map("to_shop_id")
+  toShop       Shopkeeper @relation("ExportRequestTo", fields: [toShopId], references: [id], onDelete: Cascade)
+
+  @@map("export_requests")
+}
+
+enum ExportRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
+}
