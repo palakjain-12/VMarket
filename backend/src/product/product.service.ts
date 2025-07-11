@@ -1,115 +1,72 @@
-// backend/src/product/product.service.ts
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Product } from '@prisma/client';
 import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class ProductService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createProductDto: CreateProductDto, shopkeeperId: string): Promise<Product> {
-    const { expiryDate, ...productData } = createProductDto;
-
-    return this.prisma.product.create({
-      data: {
-        ...productData,
-        expiryDate: expiryDate ? new Date(expiryDate) : null,
-        shopkeeperId,
-      },
-      include: {
-        shopkeeper: {
-          select: {
-            id: true,
-            name: true,
-            shopName: true,
-            address: true,
+  /* ------------------------------------------------------------------ */
+  /*  CREATE                                                            */
+  /* ------------------------------------------------------------------ */
+  async create(createProductDto: CreateProductDto & { shopkeeperId: string }) {
+    try {
+      const product = await this.prisma.product.create({
+        data: {
+          name: createProductDto.name,
+          description: createProductDto.description,
+          price: createProductDto.price,
+          quantity: createProductDto.quantity,
+          category: createProductDto.category,
+          expiryDate: createProductDto.expiryDate
+            ? new Date(createProductDto.expiryDate)
+            : null,
+          shopkeeperId: createProductDto.shopkeeperId,
+        },
+        include: {
+          shopkeeper: {
+            select: { id: true, name: true, shopName: true },
           },
         },
-      },
-    });
+      });
+      return product;
+    } catch (error) {
+      throw new BadRequestException('Failed to create product');
+    }
   }
 
-  async findAll(paginationDto: PaginationDto): Promise<{
-    data: Product[];
-    total: number;
-    page: number;
-    limit: number;
-  }> {
-    const { skip, take } = paginationDto;
+  /* ------------------------------------------------------------------ */
+  /*  READ – PUBLIC LIST                                                */
+  /* ------------------------------------------------------------------ */
+  async findAll(paginationDto: PaginationDto) {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
 
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({
         skip,
-        take,
+        take: limit,
+        where: { quantity: { gt: 0 } },
         include: {
-          shopkeeper: {
-            select: {
-              id: true,
-              name: true,
-              shopName: true,
-              address: true,
-            },
-          },
+          shopkeeper: { select: { id: true, name: true, shopName: true } },
         },
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.product.count(),
+      this.prisma.product.count({ where: { quantity: { gt: 0 } } }),
     ]);
 
     return {
       data: products,
-      total,
-      page: paginationDto.page ?? 1,
-      limit: paginationDto.limit ?? 10,
+      meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
     };
   }
 
-  async findByShopkeeper(shopkeeperId: string, paginationDto: PaginationDto): Promise<{
-    data: Product[];
-    total: number;
-    page: number;
-    limit: number;
-  }> {
-    const { skip, take } = paginationDto;
-
-    const [products, total] = await Promise.all([
-      this.prisma.product.findMany({
-        where: { shopkeeperId },
-        skip,
-        take,
-        include: {
-          shopkeeper: {
-            select: {
-              id: true,
-              name: true,
-              shopName: true,
-              address: true,
-            },
-          },
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      }),
-      this.prisma.product.count({
-        where: { shopkeeperId },
-      }),
-    ]);
-
-    return {
-      data: products,
-      total,
-      page: paginationDto.page ?? 1,
-      limit: paginationDto.limit ?? 10,
-    };
-  }
-
-  async findOne(id: string): Promise<Product> {
+  /* ------------------------------------------------------------------ */
+  /*  READ – SINGLE ITEM                                                */
+  /* ------------------------------------------------------------------ */
+  async findOne(id: string) {
     const product = await this.prisma.product.findUnique({
       where: { id },
       include: {
@@ -118,152 +75,186 @@ export class ProductService {
             id: true,
             name: true,
             shopName: true,
-            address: true,
+            email: true,
+            phone: true,
           },
         },
       },
     });
-
-    if (!product) {
-      throw new NotFoundException('Product not found');
-    }
-
+    if (!product) throw new NotFoundException('Product not found');
     return product;
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto, userId: string): Promise<Product> {
-    const existingProduct = await this.prisma.product.findUnique({
-      where: { id },
-    });
-
-    if (!existingProduct) {
-      throw new NotFoundException('Product not found');
-    }
-
-    // Check if user owns this product
-    if (existingProduct.shopkeeperId !== userId) {
-      throw new ForbiddenException('You can only update your own products');
-    }
-
-    const { expiryDate, ...productData } = updateProductDto;
-
-    return this.prisma.product.update({
-      where: { id },
-      data: {
-        ...productData,
-        expiryDate: expiryDate ? new Date(expiryDate) : undefined,
-      },
-      include: {
-        shopkeeper: {
-          select: {
-            id: true,
-            name: true,
-            shopName: true,
-            address: true,
-          },
-        },
-      },
-    });
-  }
-
-  async remove(id: string, userId: string): Promise<void> {
-    const existingProduct = await this.prisma.product.findUnique({
-      where: { id },
-    });
-
-    if (!existingProduct) {
-      throw new NotFoundException('Product not found');
-    }
-
-    // Check if user owns this product
-    if (existingProduct.shopkeeperId !== userId) {
-      throw new ForbiddenException('You can only delete your own products');
-    }
-
-    await this.prisma.product.delete({
-      where: { id },
-    });
-  }
-
-  async findExpiringSoon(days: number = 7): Promise<Product[]> {
-    const futureDate = new Date();
-    futureDate.setDate(futureDate.getDate() + days);
-
-    return this.prisma.product.findMany({
-      where: {
-        expiryDate: {
-          lte: futureDate,
-          gte: new Date(),
-        },
-        quantity: {
-          gt: 0,
-        },
-      },
-      include: {
-        shopkeeper: {
-          select: {
-            id: true,
-            name: true,
-            shopName: true,
-            address: true,
-          },
-        },
-      },
-      orderBy: {
-        expiryDate: 'asc',
-      },
-    });
-  }
-
-  async searchProducts(query: string, paginationDto: PaginationDto): Promise<{
-    data: Product[];
-    total: number;
-    page: number;
-    limit: number;
-  }> {
-    const { skip, take } = paginationDto;
+  /* ------------------------------------------------------------------ */
+  /*  READ – BY SHOPKEEPER                                              */
+  /* ------------------------------------------------------------------ */
+  async findByShopkeeper(shopkeeperId: string, paginationDto: PaginationDto) {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
 
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({
-        where: {
-          OR: [
-            { name: { contains: query, mode: 'insensitive' } },
-            { description: { contains: query, mode: 'insensitive' } },
-            { category: { contains: query, mode: 'insensitive' } },
-          ],
-        },
         skip,
-        take,
-        include: {
-          shopkeeper: {
-            select: {
-              id: true,
-              name: true,
-              shopName: true,
-              address: true,
-            },
-          },
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
+        take: limit,
+        where: { shopkeeperId },
+        include: { shopkeeper: { select: { id: true, name: true, shopName: true } } },
+        orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.product.count({
-        where: {
-          OR: [
-            { name: { contains: query, mode: 'insensitive' } },
-            { description: { contains: query, mode: 'insensitive' } },
-            { category: { contains: query, mode: 'insensitive' } },
-          ],
-        },
-      }),
+      this.prisma.product.count({ where: { shopkeeperId } }),
     ]);
 
     return {
       data: products,
-      total,
-      page: paginationDto.page ?? 1,
-      limit: paginationDto.limit ?? 10,
+      meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  UPDATE                                                            */
+  /* ------------------------------------------------------------------ */
+  async update(id: string, updateDto: UpdateProductDto) {
+    try {
+      const product = await this.prisma.product.update({
+        where: { id },
+        data: {
+          ...(updateDto.name && { name: updateDto.name }),
+          ...(updateDto.description && { description: updateDto.description }),
+          ...(updateDto.price && { price: updateDto.price }),
+          ...(updateDto.quantity !== undefined && { quantity: updateDto.quantity }),
+          ...(updateDto.category && { category: updateDto.category }),
+          ...(updateDto.expiryDate && { expiryDate: new Date(updateDto.expiryDate) }),
+          updatedAt: new Date(),
+        },
+        include: { shopkeeper: { select: { id: true, name: true, shopName: true } } },
+      });
+      return product;
+    } catch {
+      throw new BadRequestException('Failed to update product');
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  DELETE                                                            */
+  /* ------------------------------------------------------------------ */
+  async remove(id: string) {
+    try {
+      await this.prisma.product.delete({ where: { id } });
+      return { message: 'Product deleted successfully' };
+    } catch {
+      throw new BadRequestException('Failed to delete product');
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  SEARCH                                                            */
+  /* ------------------------------------------------------------------ */
+  async searchProducts(query: string, paginationDto: PaginationDto) {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const searchWhere = {
+      AND: [
+        { quantity: { gt: 0 } },
+        {
+          OR: [
+            { name: { contains: query, mode: 'insensitive' as const } },
+            { description: { contains: query, mode: 'insensitive' as const } },
+            { category: { contains: query, mode: 'insensitive' as const } },
+          ],
+        },
+      ],
+    } as const; // ensures literal typing
+
+    const [products, total] = await Promise.all([
+      this.prisma.product.findMany({
+        skip,
+        take: limit,
+        where: searchWhere,
+        include: { shopkeeper: { select: { id: true, name: true, shopName: true } } },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.product.count({ where: searchWhere }),
+    ]);
+
+    return {
+      data: products,
+      meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  FILTER BY CATEGORY                                                */
+  /* ------------------------------------------------------------------ */
+  async findByCategory(category: string, paginationDto: PaginationDto) {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const filter = {
+      category: { equals: category, mode: 'insensitive' as const },
+      quantity: { gt: 0 },
+    } as const;
+
+    const [products, total] = await Promise.all([
+      this.prisma.product.findMany({
+        skip,
+        take: limit,
+        where: filter,
+        include: { shopkeeper: { select: { id: true, name: true, shopName: true } } },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.product.count({ where: filter }),
+    ]);
+
+    return {
+      data: products,
+      meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  UPDATE QUANTITY                                                   */
+  /* ------------------------------------------------------------------ */
+  async updateQuantity(id: string, quantity: number) {
+    try {
+      const product = await this.prisma.product.update({
+        where: { id },
+        data: { quantity, updatedAt: new Date() },
+        include: { shopkeeper: { select: { id: true, name: true, shopName: true } } },
+      });
+      return product;
+    } catch {
+      throw new BadRequestException('Failed to update product quantity');
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  EXPIRING PRODUCTS                                                 */
+  /* ------------------------------------------------------------------ */
+  async findExpiringProducts(days = 7, paginationDto: PaginationDto) {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + days);
+
+    const filter = {
+      expiryDate: { lte: futureDate, gte: new Date() },
+      quantity: { gt: 0 },
+    } as const;
+
+    const [products, total] = await Promise.all([
+      this.prisma.product.findMany({
+        skip,
+        take: limit,
+        where: filter,
+        include: { shopkeeper: { select: { id: true, name: true, shopName: true } } },
+        orderBy: { expiryDate: 'asc' },
+      }),
+      this.prisma.product.count({ where: filter }),
+    ]);
+
+    return {
+      data: products,
+      meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
     };
   }
 }
