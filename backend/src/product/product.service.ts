@@ -38,7 +38,7 @@ export class ProductService {
   }
 
   /* ------------------------------------------------------------------ */
-  /*  READ – PUBLIC LIST                                                */
+  /*  READ – PUBLIC LIST                                                */
   /* ------------------------------------------------------------------ */
   async findAll(paginationDto: PaginationDto) {
     const { page = 1, limit = 10 } = paginationDto;
@@ -64,7 +64,7 @@ export class ProductService {
   }
 
   /* ------------------------------------------------------------------ */
-  /*  READ – SINGLE ITEM                                                */
+  /*  READ – SINGLE ITEM                                                */
   /* ------------------------------------------------------------------ */
   async findOne(id: string) {
     const product = await this.prisma.product.findUnique({
@@ -86,7 +86,7 @@ export class ProductService {
   }
 
   /* ------------------------------------------------------------------ */
-  /*  READ – BY SHOPKEEPER                                              */
+  /*  READ – BY SHOPKEEPER                                              */
   /* ------------------------------------------------------------------ */
   async findByShopkeeper(shopkeeperId: string, paginationDto: PaginationDto) {
     const { page = 1, limit = 10 } = paginationDto;
@@ -152,6 +152,7 @@ export class ProductService {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
+    // Remove 'as const' to make it mutable for Prisma
     const searchWhere = {
       AND: [
         { quantity: { gt: 0 } },
@@ -163,7 +164,7 @@ export class ProductService {
           ],
         },
       ],
-    } as const; // ensures literal typing
+    };
 
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({
@@ -189,10 +190,11 @@ export class ProductService {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
+    // Remove 'as const' to make it mutable for Prisma
     const filter = {
       category: { equals: category, mode: 'insensitive' as const },
       quantity: { gt: 0 },
-    } as const;
+    };
 
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({
@@ -236,10 +238,11 @@ export class ProductService {
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + days);
 
+    // Remove 'as const' to make it mutable for Prisma
     const filter = {
       expiryDate: { lte: futureDate, gte: new Date() },
       quantity: { gt: 0 },
-    } as const;
+    };
 
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({
