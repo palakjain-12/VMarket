@@ -50,9 +50,10 @@ export class ExportRequestController {
   async findOne(@Param('id') id: string, @Request() req) {
     const exportRequest = await this.exportRequestService.findOne(id);
 
+    // Fixed: Check toShopId instead of accessing product.shopkeeperId
     if (
       exportRequest.fromShopId !== req.user.sub &&
-      exportRequest.product.shopkeeperId !== req.user.sub
+      exportRequest.toShopId !== req.user.sub
     ) {
       throw new ForbiddenException('You are not authorized to view this export request');
     }

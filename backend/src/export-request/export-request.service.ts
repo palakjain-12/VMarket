@@ -321,6 +321,177 @@ export class ExportRequestService {
     return exportRequest;
   }
 
+  // ADD MISSING METHODS:
+  async findByStatus(
+    shopkeeperId: string,
+    status: ExportRequestStatus,
+    paginationDto: PaginationDto
+  ): Promise<{
+    data: ExportRequest[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const { skip, take } = paginationDto;
+
+    const [exportRequests, total] = await Promise.all([
+      this.prisma.exportRequest.findMany({
+        where: {
+          status,
+          OR: [
+            { fromShopId: shopkeeperId },
+            { toShopId: shopkeeperId },
+          ],
+        },
+        skip,
+        take,
+        include: {
+          product: {
+            include: {
+              shopkeeper: {
+                select: {
+                  id: true,
+                  name: true,
+                  shopName: true,
+                  address: true,
+                },
+              },
+            },
+          },
+          fromShop: {
+            select: {
+              id: true,
+              name: true,
+              shopName: true,
+              address: true,
+            },
+          },
+          toShop: {
+            select: {
+              id: true,
+              name: true,
+              shopName: true,
+              address: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      this.prisma.exportRequest.count({
+        where: {
+          status,
+          OR: [
+            { fromShopId: shopkeeperId },
+            { toShopId: shopkeeperId },
+          ],
+        },
+      }),
+    ]);
+
+    return {
+      data: exportRequests,
+      total,
+      page: paginationDto.page ?? 1,
+      limit: paginationDto.limit ?? 10,
+    };
+  }
+
+  async findByProduct(
+    productId: string,
+    shopkeeperId: string,
+    paginationDto: PaginationDto
+  ): Promise<{
+    data: ExportRequest[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const { skip, take } = paginationDto;
+
+    // Verify the product belongs to the shopkeeper
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      select: { shopkeeperId: true },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    if (product.shopkeeperId !== shopkeeperId) {
+      throw new ForbiddenException('You can only view export requests for your own products');
+    }
+
+    const [exportRequests, total] = await Promise.all([
+      this.prisma.exportRequest.findMany({
+        where: { productId },
+        skip,
+        take,
+        include: {
+          product: {
+            include: {
+              shopkeeper: {
+                select: {
+                  id: true,
+                  name: true,
+                  shopName: true,
+                  address: true,
+                },
+              },
+            },
+          },
+          fromShop: {
+            select: {
+              id: true,
+              name: true,
+              shopName: true,
+              address: true,
+            },
+          },
+          toShop: {
+            select: {
+              id: true,
+              name: true,
+              shopName: true,
+              address: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      this.prisma.exportRequest.count({
+        where: { productId },
+      }),
+    ]);
+
+    return {
+      data: exportRequests,
+      total,
+      page: paginationDto.page ?? 1,
+      limit: paginationDto.limit ?? 10,
+    };
+  }
+
+  async remove(id: string): Promise<{ message: string }> {
+    const exportRequest = await this.prisma.exportRequest.findUnique({
+      where: { id },
+    });
+
+    if (!exportRequest) {
+      throw new NotFoundException('Export request not found');
+    }
+
+    await this.prisma.exportRequest.delete({
+      where: { id },
+    });
+
+    return { message: 'Export request deleted successfully' };
+  }
+
   async acceptRequest(id: string, shopkeeperId: string, acceptDto: AcceptExportRequestDto): Promise<ExportRequest> {
     const exportRequest = await this.prisma.exportRequest.findUnique({
       where: { id },
@@ -404,7 +575,6 @@ export class ExportRequestService {
         where: {
           shopkeeperId: shopkeeperId,
           name: exportRequest.product.name,
-          // You might want to add more specific matching criteria
         },
       });
 

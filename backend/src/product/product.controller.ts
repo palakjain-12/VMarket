@@ -46,18 +46,14 @@ export class ProductController {
 
   @Get('shop/:shopId')
   async findByShop(@Param('shopId') shopId: string, @Query() paginationDto: PaginationDto) {
-    if (!shopId || isNaN(+shopId)) {
-      throw new BadRequestException('Invalid shop ID');
-    }
-    return this.productService.findByShopkeeper(+shopId, paginationDto);
+    // Fixed: Use shopId as string, not number
+    return this.productService.findByShopkeeper(shopId, paginationDto);
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    if (!id || isNaN(+id)) {
-      throw new BadRequestException('Invalid product ID');
-    }
-    const product = await this.productService.findOne(+id);
+    // Fixed: Use id as string, not number
+    const product = await this.productService.findOne(id);
     if (!product) {
       throw new NotFoundException('Product not found');
     }
@@ -66,12 +62,9 @@ export class ProductController {
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto, @Request() req) {
-    if (!id || isNaN(+id)) {
-      throw new BadRequestException('Invalid product ID');
-    }
-    
+    // Fixed: Use id as string, not number
     // Verify the product belongs to the authenticated user
-    const product = await this.productService.findOne(+id);
+    const product = await this.productService.findOne(id);
     if (!product) {
       throw new NotFoundException('Product not found');
     }
@@ -80,17 +73,14 @@ export class ProductController {
       throw new BadRequestException('You can only update your own products');
     }
     
-    return this.productService.update(+id, updateProductDto);
+    return this.productService.update(id, updateProductDto);
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string, @Request() req) {
-    if (!id || isNaN(+id)) {
-      throw new BadRequestException('Invalid product ID');
-    }
-    
+    // Fixed: Use id as string, not number
     // Verify the product belongs to the authenticated user
-    const product = await this.productService.findOne(+id);
+    const product = await this.productService.findOne(id);
     if (!product) {
       throw new NotFoundException('Product not found');
     }
@@ -99,7 +89,7 @@ export class ProductController {
       throw new BadRequestException('You can only delete your own products');
     }
     
-    return this.productService.remove(+id);
+    return this.productService.remove(id);
   }
 
   @Get('search/:query')
@@ -124,16 +114,13 @@ export class ProductController {
     @Body('quantity') quantity: number,
     @Request() req
   ) {
-    if (!id || isNaN(+id)) {
-      throw new BadRequestException('Invalid product ID');
-    }
-    
+    // Fixed: Use id as string, not number
     if (quantity < 0) {
       throw new BadRequestException('Quantity cannot be negative');
     }
     
     // Verify the product belongs to the authenticated user
-    const product = await this.productService.findOne(+id);
+    const product = await this.productService.findOne(id);
     if (!product) {
       throw new NotFoundException('Product not found');
     }
@@ -142,6 +129,6 @@ export class ProductController {
       throw new BadRequestException('You can only update your own products');
     }
     
-    return this.productService.updateQuantity(+id, quantity);
+    return this.productService.updateQuantity(id, quantity);
   }
 }
