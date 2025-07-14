@@ -59,8 +59,36 @@ export class ProductService {
       this.prisma.product.count({ where: { quantity: { gt: 0 } } }),
     ]);
 
+    // Get all pending export requests for these products
+    const productIds = products.map(product => product.id);
+    const pendingExportRequests = await this.prisma.exportRequest.findMany({
+      where: {
+        productId: { in: productIds },
+        status: 'PENDING',
+      },
+      select: {
+        productId: true,
+        quantity: true,
+      },
+    });
+
+    // Create a map of product ID to pending quantity
+    const pendingQuantityMap = {};
+    pendingExportRequests.forEach(request => {
+      if (!pendingQuantityMap[request.productId]) {
+        pendingQuantityMap[request.productId] = 0;
+      }
+      pendingQuantityMap[request.productId] += request.quantity;
+    });
+
+    // Add available quantity to each product
+    const productsWithAvailableQuantity = products.map(product => ({
+      ...product,
+      availableQuantity: Math.max(0, product.quantity - (pendingQuantityMap[product.id] || 0)),
+    }));
+
     return {
-      data: products,
+      data: productsWithAvailableQuantity,
       meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
     };
   }
@@ -84,7 +112,31 @@ export class ProductService {
       },
     });
     if (!product) throw new NotFoundException('Product not found');
-    return product;
+    
+    // Get pending export requests for this product to calculate actual available quantity
+    const pendingExportRequests = await this.prisma.exportRequest.findMany({
+      where: {
+        productId: id,
+        status: 'PENDING',
+      },
+      select: {
+        quantity: true,
+      },
+    });
+    
+    // Calculate total quantity in pending export requests
+    const pendingQuantity = pendingExportRequests.reduce(
+      (total, request) => total + request.quantity, 
+      0
+    );
+    
+    // Create a new product object with the available quantity
+    const productWithAvailableQuantity = {
+      ...product,
+      availableQuantity: Math.max(0, product.quantity - pendingQuantity),
+    };
+    
+    return productWithAvailableQuantity;
   }
 
   /* ------------------------------------------------------------------ */
@@ -105,8 +157,36 @@ export class ProductService {
       this.prisma.product.count({ where: { shopkeeperId } }),
     ]);
 
+    // Get all pending export requests for these products
+    const productIds = products.map(product => product.id);
+    const pendingExportRequests = await this.prisma.exportRequest.findMany({
+      where: {
+        productId: { in: productIds },
+        status: 'PENDING',
+      },
+      select: {
+        productId: true,
+        quantity: true,
+      },
+    });
+
+    // Create a map of product ID to pending quantity
+    const pendingQuantityMap = {};
+    pendingExportRequests.forEach(request => {
+      if (!pendingQuantityMap[request.productId]) {
+        pendingQuantityMap[request.productId] = 0;
+      }
+      pendingQuantityMap[request.productId] += request.quantity;
+    });
+
+    // Add available quantity to each product
+    const productsWithAvailableQuantity = products.map(product => ({
+      ...product,
+      availableQuantity: Math.max(0, product.quantity - (pendingQuantityMap[product.id] || 0)),
+    }));
+
     return {
-      data: products,
+      data: productsWithAvailableQuantity,
       meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
     };
   }

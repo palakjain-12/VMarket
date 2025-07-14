@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { productService } from '../services/api';
-import { CreateProductData } from '../types';
+import { CreateProductData, Product } from '../types';
 
-const AddProduct: React.FC = () => {
+const EditProduct: React.FC = () => {
+  const { productId } = useParams<{ productId: string }>();
   const [formData, setFormData] = useState<CreateProductData>({
     name: '',
     description: '',
@@ -13,11 +14,38 @@ const AddProduct: React.FC = () => {
     category: '',
   });
   const [loading, setLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!productId) return;
+      
+      try {
+        const product = await productService.getById(productId);
+        setFormData({
+          name: product.name,
+          description: product.description || '',
+          price: product.price,
+          quantity: product.quantity,
+          expiryDate: product.expiryDate ? new Date(product.expiryDate).toISOString().split('T')[0] : '',
+          category: product.category || '',
+        });
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Failed to fetch product');
+      } finally {
+        setFetchLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [productId]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!productId) return;
+    
     setLoading(true);
     setError('');
 
@@ -30,10 +58,10 @@ const AddProduct: React.FC = () => {
         description: formData.description || undefined,
       };
 
-      await productService.create(cleanedData);
+      await productService.update(productId, cleanedData);
       navigate('/my-products');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create product');
+      setError(err.response?.data?.message || 'Failed to update product');
     } finally {
       setLoading(false);
     }
@@ -47,11 +75,22 @@ const AddProduct: React.FC = () => {
     });
   };
 
+  if (fetchLoading) {
+    return (
+      <div className="container">
+        <div className="loading">
+          <div className="loading-spinner"></div>
+          <p>Loading product...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container">
       <div className="page-header">
-        <h1>Add New Product</h1>
-        <p className="subtitle">Add a new product to your inventory</p>
+        <h1>Edit Product</h1>
+        <p className="subtitle">Update your product details</p>
       </div>
 
       <div className="card">
@@ -163,7 +202,7 @@ const AddProduct: React.FC = () => {
               disabled={loading}
               className="btn btn-primary"
             >
-              {loading ? 'Adding...' : 'Add Product'}
+              {loading ? 'Updating...' : 'Update Product'}
             </button>
           </div>
         </form>
@@ -172,4 +211,4 @@ const AddProduct: React.FC = () => {
   );
 };
 
-export default AddProduct;
+export default EditProduct;

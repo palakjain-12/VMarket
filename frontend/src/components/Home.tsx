@@ -25,8 +25,18 @@ const Home: React.FC = () => {
     }
   };
 
-  if (loading) return <div className="loading">Loading shops...</div>;
-  if (error) return <div className="error">Error: {error}</div>;
+  if (loading) return (
+    <div className="loading">
+      <div className="loading-spinner"></div>
+      <p>Loading shops...</p>
+    </div>
+  );
+  
+  if (error) return (
+    <div className="error">
+      <p>Error: {error}</p>
+    </div>
+  );
 
   return (
     <div className="home">
@@ -41,38 +51,49 @@ const Home: React.FC = () => {
         )}
       </div>
 
+      {user && (
+        <div className="quick-actions">
+          <h2>Quick Actions</h2>
+          <div className="actions-grid">
+            <Link to="/my-products" className="action-card">
+              <h3>My Products</h3>
+              <p>Manage your shop's inventory</p>
+              <button className="btn btn-primary">View Products</button>
+            </Link>
+            <Link to="/add-product" className="action-card">
+              <h3>Add Product</h3>
+              <p>Add new items to your shop</p>
+              <button className="btn btn-primary">Add New</button>
+            </Link>
+            <Link to="/export-requests" className="action-card">
+              <h3>Export Requests</h3>
+              <p>Manage product transfer requests</p>
+              <button className="btn btn-primary">View Requests</button>
+            </Link>
+          </div>
+        </div>
+      )}
+
       <div className="shops-section">
         <h2>Registered Shops</h2>
         <div className="shops-grid">
-          {shops.map((shop) => (
-            <div key={shop.id} className="shop-card">
-              <h3>{shop.shopName}</h3>
-              <p><strong>Owner:</strong> {shop.name}</p>
-              <p><strong>Address:</strong> {shop.address}</p>
-              {shop.phone && <p><strong>Phone:</strong> {shop.phone}</p>}
-              <Link to={`/shop/${shop.id}`} className="btn">
-                View Products
-              </Link>
+          {shops.length > 0 ? (
+            shops.map((shop) => (
+              <div key={shop.id} className="shop-card">
+                <h3>{shop.shopName}</h3>
+                <p><strong>Owner:</strong> {shop.name}</p>
+                <p><strong>Address:</strong> {shop.address}</p>
+                {shop.phone && <p><strong>Phone:</strong> {shop.phone}</p>}
+                <Link to={`/shop/${shop.id}`} className="btn btn-primary">
+                  View Products
+                </Link>
+              </div>
+            ))
+          ) : (
+            <div className="empty-state">
+              <p>No shops registered yet.</p>
             </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="quick-actions">
-        <h2>Quick Actions</h2>
-        <div className="actions-grid">
-          <Link to="/my-products" className="action-card">
-            <h3>My Products</h3>
-            <p>Manage your shop's inventory</p>
-          </Link>
-          <Link to="/add-product" className="action-card">
-            <h3>Add Product</h3>
-            <p>Add new items to your shop</p>
-          </Link>
-          <Link to="/export-requests" className="action-card">
-            <h3>Export Requests</h3>
-            <p>Manage product transfer requests</p>
-          </Link>
+          )}
         </div>
       </div>
     </div>

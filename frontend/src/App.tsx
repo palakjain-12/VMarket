@@ -9,6 +9,7 @@ import Register from './components/auth/Register';
 import ShopProducts from './components/ShopProducts';
 import MyProducts from './components/MyProducts';
 import AddProduct from './components/AddProduct';
+import EditProduct from './components/EditProduct';
 import ExportRequests from './components/ExportRequests';
 import './App.css';
 
@@ -37,6 +38,14 @@ const App: React.FC = () => {
                 element={
                   <ProtectedRoute>
                     <AddProduct />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/edit-product/:productId" 
+                element={
+                  <ProtectedRoute>
+                    <EditProduct />
                   </ProtectedRoute>
                 } 
               />

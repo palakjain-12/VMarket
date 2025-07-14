@@ -29,20 +29,24 @@ const MyProducts: React.FC = () => {
   };
 
   if (loading) return <div className="loading">Loading your products...</div>;
-  if (error) return <div className="error">Error: {error}</div>;
+  if (error) return <div className="error-message">Error: {error}</div>;
 
   return (
-    <div className="my-products">
+    <div className="container">
       <div className="page-header">
         <h1>My Products</h1>
-        <Link to="/add-product" className="btn btn-primary">
-          Add New Product
-        </Link>
+        <div className="header-actions">
+          <Link to="/add-product" className="btn btn-primary">
+            <span className="icon">+</span> Add New Product
+          </Link>
+        </div>
       </div>
 
       {products.length === 0 ? (
         <div className="empty-state">
-          <p>You haven't added any products yet.</p>
+          <div className="icon">📦</div>
+          <h3>No Products Yet</h3>
+          <p>You haven't added any products to your inventory yet.</p>
           <Link to="/add-product" className="btn btn-primary">
             Add Your First Product
           </Link>

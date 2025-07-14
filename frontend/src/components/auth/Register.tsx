@@ -43,91 +43,121 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="auth-container">
-      <form onSubmit={handleSubmit} className="auth-form">
-        <h2>Register</h2>
-        
-        {error && <div className="error">{error}</div>}
-        
-        <div className="form-group">
-          <label htmlFor="name">Name</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
+    <div className="auth-page">
+      <div className="auth-container">
+        <div className="auth-card">
+          <div className="auth-header">
+            <h2>Create Account</h2>
+            <p className="subtitle">Register your shop on VMarket</p>
+          </div>
+          
+          {error && <div className="error-message">{error}</div>}
+          
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="name">Full Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  className="form-control"
+                  placeholder="Enter your full name"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="form-control"
+                  placeholder="Enter your email"
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  minLength={6}
+                  className="form-control"
+                  placeholder="Create a password (min. 6 characters)"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="phone">Phone (Optional)</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="form-control"
+                  placeholder="Enter your phone number"
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="shopName">Shop Name</label>
+              <input
+                type="text"
+                id="shopName"
+                name="shopName"
+                value={formData.shopName}
+                onChange={handleChange}
+                required
+                className="form-control"
+                placeholder="Enter your shop name"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="address">Address</label>
+              <textarea
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                required
+                className="form-control"
+                placeholder="Enter your shop address"
+                rows={3}
+              />
+            </div>
+
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="btn btn-primary btn-block"
+            >
+              {loading ? 'Creating Account...' : 'Register'}
+            </button>
+
+            <div className="auth-footer">
+              <p>
+                Already have an account? <Link to="/login" className="auth-link">Login</Link>
+              </p>
+            </div>
+          </form>
         </div>
-
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            minLength={6}
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="phone">Phone (Optional)</label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="shopName">Shop Name</label>
-          <input
-            type="text"
-            id="shopName"
-            name="shopName"
-            value={formData.shopName}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="address">Address</label>
-          <textarea
-            id="address"
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <button type="submit" disabled={loading}>
-          {loading ? 'Registering...' : 'Register'}
-        </button>
-
-        <p>
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
-      </form>
+      </div>
     </div>
   );
 };

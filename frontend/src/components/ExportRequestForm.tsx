@@ -23,15 +23,30 @@ const ExportRequestForm: React.FC<ExportRequestFormProps> = ({
   const { user } = useAuth();
 
   useEffect(() => {
+    // Fetch shops data when component mounts
     fetchShops();
-  }, []);
+    
+    // Use availableQuantity if it exists, otherwise use quantity
+    const availableQty = product.availableQuantity !== undefined ? product.availableQuantity : product.quantity;
+    
+    // Set initial quantity to 1 (default) or half of available quantity if product has more than 2 units
+    if (availableQty > 2) {
+      setQuantity(Math.floor(availableQty / 2));
+    } else {
+      setQuantity(Math.min(1, availableQty));
+    }
+  }, [product.quantity, product.availableQuantity]);
 
   const fetchShops = async () => {
     try {
       const response = await shopkeeperService.getAll();
-      // Filter out current user's shop
-      const otherShops = response.data.filter(shop => shop.id !== user?.id);
-      setShops(otherShops);
+      // If this is the user's own product, filter out their own shop
+      // Otherwise, include all shops for export requests
+      const isOwnProduct = product.shopkeeper?.id === user?.id;
+      const filteredShops = isOwnProduct
+        ? response.data.filter(shop => shop.id !== user?.id)
+        : response.data;
+      setShops(filteredShops);
     } catch (err: any) {
       setError('Failed to fetch shops');
     }
@@ -58,77 +73,73 @@ const ExportRequestForm: React.FC<ExportRequestFormProps> = ({
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal">
-        <div className="modal-header">
-          <h3>Request Product Export</h3>
-          <button className="close-btn" onClick={onClose}>×</button>
-        </div>
+    <form onSubmit={handleSubmit} className="export-form">
+      {error && <div className="error-message">{error}</div>}
 
-        <div className="modal-body">
-          <div className="product-info">
-            <h4>{product.name}</h4>
-            <p>Available Quantity: {product.quantity}</p>
-            <p>Price: ₹{product.price}</p>
-          </div>
-
-          <form onSubmit={handleSubmit}>
-            {error && <div className="error">{error}</div>}
-
-            <div className="form-group">
-              <label htmlFor="toShop">Send to Shop *</label>
-              <select
-                id="toShop"
-                value={selectedShopId}
-                onChange={(e) => setSelectedShopId(e.target.value)}
-                required
-              >
-                <option value="">Select Shop</option>
-                {shops.map((shop) => (
-                  <option key={shop.id} value={shop.id}>
-                    {shop.shopName} - {shop.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="quantity">Quantity *</label>
-              <input
-                type="number"
-                id="quantity"
-                value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
-                min="1"
-                max={product.quantity}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="message">Message (Optional)</label>
-              <textarea
-                id="message"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                rows={3}
-                placeholder="Add a message for the receiving shop..."
-              />
-            </div>
-
-            <div className="form-actions">
-              <button type="button" onClick={onClose}>
-                Cancel
-              </button>
-              <button type="submit" disabled={loading}>
-                {loading ? 'Sending...' : 'Send Request'}
-              </button>
-            </div>
-          </form>
-        </div>
+      <div className="form-group">
+        <label htmlFor="toShop">Send to Shop *</label>
+        <select
+          id="toShop"
+          value={selectedShopId}
+          onChange={(e) => setSelectedShopId(e.target.value)}
+          required
+          className="form-control"
+        >
+          <option value="">Select Shop</option>
+          {shops.map((shop) => (
+            <option key={shop.id} value={shop.id}>
+              {shop.shopName} - {shop.name}
+            </option>
+          ))}
+        </select>
       </div>
-    </div>
+
+      <div className="form-group">
+        <label htmlFor="quantity">Quantity *</label>
+        <input
+          type="number"
+          id="quantity"
+          value={quantity}
+          onChange={(e) => setQuantity(Number(e.target.value))}
+          min="1"
+          max={product.availableQuantity !== undefined ? product.availableQuantity : product.quantity}
+          required
+          className="form-control"
+        />
+        <small className="form-text">Maximum available: {product.availableQuantity !== undefined ? product.availableQuantity : product.quantity} units</small>
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="message">Message (Optional)</label>
+        <textarea
+          id="message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          rows={3}
+          placeholder="Add a message for the receiving shop..."
+          className="form-control"
+        />
+      </div>
+
+      <div className="form-actions">
+        <button 
+          type="button" 
+          onClick={onClose}
+          className="btn btn-secondary"
+        >
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          disabled={loading}
+          className="btn btn-primary"
+        >
+          {loading ? 'Sending...' : 'Send Request'}
+        </button>
+      </div>
+    </form>
   );
 };
 
-export default ExportRequestForm;
+// Use React.memo to prevent unnecessary re-renders
+export default React.memo(ExportRequestForm);

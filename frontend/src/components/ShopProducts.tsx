@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { productService, shopkeeperService } from '../services/api';
 import { Product, Shopkeeper } from '../types';
 import ProductCard from './ProductCard';
@@ -34,23 +34,43 @@ const ShopProducts: React.FC = () => {
   };
 
   if (loading) return <div className="loading">Loading shop products...</div>;
-  if (error) return <div className="error">Error: {error}</div>;
+  if (error) return <div className="error-message">Error: {error}</div>;
 
   return (
-    <div className="shop-products">
+    <div className="container">
       {shop && (
         <div className="shop-header">
-          <h1>{shop.shopName}</h1>
-          <p><strong>Owner:</strong> {shop.name}</p>
-          <p><strong>Address:</strong> {shop.address}</p>
-          {shop.phone && <p><strong>Phone:</strong> {shop.phone}</p>}
+          <div className="page-header">
+            <h1>{shop.shopName}</h1>
+            <div className="header-actions">
+              <Link to="/" className="btn btn-secondary">
+                <span className="icon">←</span> Back to Shops
+              </Link>
+            </div>
+          </div>
+          
+          <div className="shop-details card">
+            <div className="shop-info">
+              <p><strong>Owner:</strong> {shop.name}</p>
+              <p><strong>Address:</strong> {shop.address}</p>
+              {shop.phone && <p><strong>Phone:</strong> {shop.phone}</p>}
+            </div>
+          </div>
         </div>
       )}
 
       <div className="products-section">
-        <h2>Products ({products.length})</h2>
+        <div className="section-header">
+          <h2>Available Products</h2>
+          <span className="badge">{products.length}</span>
+        </div>
+        
         {products.length === 0 ? (
-          <p>No products available in this shop.</p>
+          <div className="empty-state">
+            <div className="icon">🛒</div>
+            <h3>No Products Available</h3>
+            <p>This shop doesn't have any products listed at the moment.</p>
+          </div>
         ) : (
           <div className="products-grid">
             {products.map((product) => (

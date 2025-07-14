@@ -57,96 +57,115 @@ const ExportRequests: React.FC = () => {
   };
 
   if (loading) return <div className="loading">Loading export requests...</div>;
-  if (error) return <div className="error">Error: {error}</div>;
+  if (error) return <div className="error-message">Error: {error}</div>;
 
   return (
-    <div className="export-requests">
+    <div className="container">
       <div className="page-header">
         <h1>Export Requests</h1>
+        <p className="subtitle">Manage your product transfer requests</p>
       </div>
 
-      <div className="tabs">
-        <button
-          className={`tab ${activeTab === 'received' ? 'active' : ''}`}
-          onClick={() => setActiveTab('received')}
-        >
-          Received ({receivedRequests.length})
-        </button>
-        <button
-          className={`tab ${activeTab === 'sent' ? 'active' : ''}`}
-          onClick={() => setActiveTab('sent')}
-        >
-          Sent ({sentRequests.length})
-        </button>
-      </div>
+      <div className="tabs-container">
+        <div className="tabs">
+          <button
+            className={`tab ${activeTab === 'received' ? 'active' : ''}`}
+            onClick={() => setActiveTab('received')}
+          >
+            Received ({receivedRequests.length})
+          </button>
+          <button
+            className={`tab ${activeTab === 'sent' ? 'active' : ''}`}
+            onClick={() => setActiveTab('sent')}
+          >
+            Sent ({sentRequests.length})
+          </button>
+        </div>
 
-      <div className="tab-content">
-        {activeTab === 'received' ? (
-          <div className="requests-list">
-            {receivedRequests.length === 0 ? (
-              <p>No export requests received yet.</p>
-            ) : (
-              receivedRequests.map((request) => (
-                <div key={request.id} className="request-card">
-                  <div className="request-header">
-                    <h3>{request.product?.name}</h3>
-                    <span className={`status ${getStatusColor(request.status)}`}>
-                      {request.status}
-                    </span>
-                  </div>
-                  
-                  <div className="request-details">
-                    <p><strong>From:</strong> {request.fromShop?.shopName} ({request.fromShop?.name})</p>
-                    <p><strong>Quantity:</strong> {request.quantity}</p>
-                    <p><strong>Price:</strong> ₹{request.product?.price}</p>
-                    {request.message && <p><strong>Message:</strong> {request.message}</p>}
-                  </div>
-
-                  {request.status === 'PENDING' && (
-                    <div className="request-actions">
-                      <button
-                        className="btn btn-success"
-                        onClick={() => handleAccept(request.id)}
-                      >
-                        Accept
-                      </button>
-                      <button
-                        className="btn btn-danger"
-                        onClick={() => handleReject(request.id)}
-                      >
-                        Reject
-                      </button>
+        <div className="tab-content">
+          {activeTab === 'received' ? (
+            <div className="requests-list">
+              {receivedRequests.length === 0 ? (
+                <div className="empty-state">
+                  <div className="icon">📭</div>
+                  <p>No export requests received yet.</p>
+                </div>
+              ) : (
+                receivedRequests.map((request) => (
+                  <div key={request.id} className="request-card">
+                    <div className="request-header">
+                      <h3>{request.product?.name}</h3>
+                      <span className={`status-badge ${getStatusColor(request.status)}`}>
+                        {request.status}
+                      </span>
                     </div>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
-        ) : (
-          <div className="requests-list">
-            {sentRequests.length === 0 ? (
-              <p>No export requests sent yet.</p>
-            ) : (
-              sentRequests.map((request) => (
-                <div key={request.id} className="request-card">
-                  <div className="request-header">
-                    <h3>{request.product?.name}</h3>
-                    <span className={`status ${getStatusColor(request.status)}`}>
-                      {request.status}
-                    </span>
+                    
+                    <div className="request-details">
+                      <p><strong>From:</strong> {request.fromShop?.shopName} ({request.fromShop?.name})</p>
+                      <p><strong>Quantity:</strong> {request.quantity} units</p>
+                      <p><strong>Price:</strong> ₹{request.product?.price}</p>
+                      {request.message && (
+                        <div className="message">
+                          <strong>Message:</strong>
+                          <p>{request.message}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {request.status === 'PENDING' && (
+                      <div className="request-actions">
+                        <button
+                          className="btn btn-success"
+                          onClick={() => handleAccept(request.id)}
+                        >
+                          Accept
+                        </button>
+                        <button
+                          className="btn btn-danger"
+                          onClick={() => handleReject(request.id)}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  
-                  <div className="request-details">
-                    <p><strong>To:</strong> {request.toShop?.shopName} ({request.toShop?.name})</p>
-                    <p><strong>Quantity:</strong> {request.quantity}</p>
-                    <p><strong>Price:</strong> ₹{request.product?.price}</p>
-                    {request.message && <p><strong>Message:</strong> {request.message}</p>}
-                  </div>
+                ))
+              )}
+            </div>
+          ) : (
+            <div className="requests-list">
+              {sentRequests.length === 0 ? (
+                <div className="empty-state">
+                  <div className="icon">📤</div>
+                  <p>No export requests sent yet.</p>
                 </div>
-              ))
-            )}
-          </div>
-        )}
+              ) : (
+                sentRequests.map((request) => (
+                  <div key={request.id} className="request-card">
+                    <div className="request-header">
+                      <h3>{request.product?.name}</h3>
+                      <span className={`status-badge ${getStatusColor(request.status)}`}>
+                        {request.status}
+                      </span>
+                    </div>
+                    
+                    <div className="request-details">
+                      <p><strong>To:</strong> {request.toShop?.shopName} ({request.toShop?.name})</p>
+                      <p><strong>Quantity:</strong> {request.quantity} units</p>
+                      <p><strong>Price:</strong> ₹{request.product?.price}</p>
+                      {request.message && (
+                        <div className="message">
+                          <strong>Message:</strong>
+                          <p>{request.message}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
