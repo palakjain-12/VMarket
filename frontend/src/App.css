@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
 
 /* ===== CSS RESET & BASE ===== */
@@ -622,7 +623,50 @@ button, .btn {
   gap: var(--space-2);
 }
 
-/* Modal */
+/* ===== STATUS BADGES ===== */
+.status {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  animation: statusPulse 2s ease-in-out infinite;
+  box-shadow: var(--shadow-md);
+}
+
+@keyframes statusPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.status-pending {
+  background: var(--gradient-warning);
+  color: white;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+.status-accepted {
+  background: var(--gradient-success);
+  color: white;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.status-rejected {
+  background: var(--gradient-danger);
+  color: white;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.status-completed {
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: var(--shadow-glow);
+}
+
+/* ===== MODAL STYLES ===== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -839,6 +883,8 @@ button, .btn {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: var(--text-xl);
+  font-weight: bold;
 }
 
 .close-btn:hover {
@@ -870,6 +916,10 @@ button, .btn {
   to { 
     opacity: 1; 
     transform: translateY(0); 
+  }
+
+  .auth-form, .product-form {
+    padding: var(--space-6);
   }
 }
 }
