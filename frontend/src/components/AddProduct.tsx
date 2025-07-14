@@ -7,8 +7,8 @@ const AddProduct: React.FC = () => {
   const [formData, setFormData] = useState<CreateProductData>({
     name: '',
     description: '',
-    price: 0,
-    quantity: 0,
+    price: 1,
+    quantity: 1,
     expiryDate: '',
     category: '',
   });

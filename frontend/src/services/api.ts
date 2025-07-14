@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { AuthResponse, LoginData, RegisterData, Product, CreateProductData, Shopkeeper, ExportRequest } from '../types';
 
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = 'http://localhost:3001/api';
+
 
 const api = axios.create({
   baseURL: API_BASE_URL,

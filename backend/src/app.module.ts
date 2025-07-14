@@ -10,6 +10,10 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import configuration from './config/configuration';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
+import { ProductModule } from './product/product.module';
+import { ExportRequestModule } from './export-request/export-request.module';
+import { ExportRequestController } from './export-request/export-request.controller';
+import { ExportRequestService } from './export-request/export-request.service';
 
 @Module({
   imports: [
@@ -22,6 +26,8 @@ import jwtConfig from './config/jwt.config';
     PrismaModule,
     AuthModule,
     ShopkeeperModule,
+    ProductModule,
+    ExportRequestModule,
   ],
   controllers: [AppController],
   providers: [

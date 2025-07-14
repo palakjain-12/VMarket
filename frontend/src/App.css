@@ -1037,3 +1037,15 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent-secondary);
 }
+/* Prevent layout shift when modal opens due to scrollbar */
+body.modal-open {
+  overflow: hidden;
+  padding-right: 8px; /* Match scrollbar width if needed */
+}
+
+/* Ensure modal does not shift when toggling between scroll/no-scroll */
+.modal {
+  overflow-y: auto;
+  max-height: calc(100vh - 40px); /* Avoid full viewport overflow */
+  will-change: transform, opacity;
+}

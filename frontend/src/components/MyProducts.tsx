@@ -54,6 +54,7 @@ const MyProducts: React.FC = () => {
               key={product.id}
               product={product}
               showActions={true}
+              showExportButton={true}
               onUpdate={handleProductUpdate}
             />
           ))}

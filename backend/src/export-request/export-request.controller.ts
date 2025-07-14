@@ -1,4 +1,4 @@
-// src/export-request/export-request.controller.ts
+// backend/src/export-request/export-request.controller.ts - Add missing endpoints
 import {
   Controller,
   Get,
@@ -46,18 +46,26 @@ export class ExportRequestController {
     return this.exportRequestService.findRequestsForMe(req.user.sub, paginationDto);
   }
 
+  // ADD THESE MISSING ENDPOINTS FOR FRONTEND COMPATIBILITY
+  @Get('received')
+  async getReceived(@Request() req, @Query() paginationDto: PaginationDto) {
+    return this.exportRequestService.findRequestsForMe(req.user.sub, paginationDto);
+  }
+
+  @Get('sent')
+  async getSent(@Request() req, @Query() paginationDto: PaginationDto) {
+    return this.exportRequestService.findMyRequests(req.user.sub, paginationDto);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string, @Request() req) {
     const exportRequest = await this.exportRequestService.findOne(id);
-
-    // Fixed: Check toShopId instead of accessing product.shopkeeperId
     if (
       exportRequest.fromShopId !== req.user.sub &&
       exportRequest.toShopId !== req.user.sub
     ) {
       throw new ForbiddenException('You are not authorized to view this export request');
     }
-
     return exportRequest;
   }
 
@@ -82,32 +90,6 @@ export class ExportRequestController {
   @Patch(':id/cancel')
   async cancelRequest(@Param('id') id: string, @Request() req) {
     return this.exportRequestService.cancelRequest(id, req.user.sub);
-  }
-
-  @Get('status/:status')
-  async findByStatus(
-    @Param('status') status: string,
-    @Request() req,
-    @Query() paginationDto: PaginationDto,
-  ) {
-    if (!Object.values(ExportRequestStatus).includes(status as ExportRequestStatus)) {
-      throw new BadRequestException('Invalid status');
-    }
-
-    return this.exportRequestService.findByStatus(
-      req.user.sub,
-      status as ExportRequestStatus,
-      paginationDto,
-    );
-  }
-
-  @Get('product/:productId')
-  async findByProduct(
-    @Param('productId') productId: string,
-    @Request() req,
-    @Query() paginationDto: PaginationDto,
-  ) {
-    return this.exportRequestService.findByProduct(productId, req.user.sub, paginationDto);
   }
 
   @Delete(':id')

@@ -33,8 +33,10 @@ export class ProductService {
       });
       return product;
     } catch (error) {
-      throw new BadRequestException('Failed to create product');
-    }
+  console.error('❌ Product creation failed:', error);
+  throw new BadRequestException(error.message || 'Failed to create product');
+}
+
   }
 
   /* ------------------------------------------------------------------ */
