@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Product } from '../types';
 import { productService } from '../services/api';
 import ExportRequestForm from './ExportRequestForm';
+import Modal from './Modal';
 
 interface ProductCardProps {
   product: Product;
@@ -20,7 +21,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [showExportForm, setShowExportForm] = useState(false);
   const [loading, setLoading] = useState(false);
   
-  const openExportForm = useCallback(() => {
+  const openExportForm = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setShowExportForm(true);
   }, []);
   
@@ -120,39 +123,26 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       )}
 
-      {showExportForm && (
-        <div className="modal-overlay">
-          <div className="modal-backdrop" onClick={closeExportForm} />
-          <div className="modal">
-            <div className="modal-header">
-              <h3>Request Product Export</h3>
-              <button 
-                className="close-btn" 
-                onClick={closeExportForm}
-                aria-label="Close"
-              >
-                &times;
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="product-info">
-                <h4>{product.name}</h4>
-                <p><strong>Available Quantity:</strong> {product.availableQuantity !== undefined ? product.availableQuantity : product.quantity} units</p>
-                <p><strong>From Shop:</strong> {product.shopkeeper?.shopName}</p>
-              </div>
-              <ExportRequestForm
-                product={product}
-                onClose={closeExportForm}
-                onSuccess={() => {
-                  closeExportForm();
-                  alert('Export request sent successfully!');
-                  if (onUpdate) onUpdate();
-                }}
-              />
-            </div>
-          </div>
+      <Modal 
+        isOpen={showExportForm} 
+        onClose={closeExportForm}
+        title="Request Product Export"
+      >
+        <div className="product-info">
+          <h4>{product.name}</h4>
+          <p><strong>Available Quantity:</strong> {product.availableQuantity !== undefined ? product.availableQuantity : product.quantity} units</p>
+          <p><strong>From Shop:</strong> {product.shopkeeper?.shopName}</p>
         </div>
-      )}
+        <ExportRequestForm
+          product={product}
+          onClose={closeExportForm}
+          onSuccess={() => {
+            closeExportForm();
+            alert('Export request sent successfully!');
+            if (onUpdate) onUpdate();
+          }}
+        />
+      </Modal>
     </div>
   );
 };

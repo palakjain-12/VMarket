@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
 
 /* ===== CSS RESET & BASE ===== */
@@ -308,13 +307,31 @@ button, .btn {
 .hero {
   text-align: center;
   padding: var(--space-12) var(--space-4);
-  background: linear-gradient(135deg, var(--primary-500) 0%, var(--accent-teal) 100%);
+  background: 
+    linear-gradient(135deg, rgba(16, 185, 129, 0.85) 0%, rgba(20, 184, 166, 0.85) 100%),
+    linear-gradient(90deg, 
+      transparent 0%, 
+      transparent 10%, 
+      rgba(236, 72, 153, 0.2) 10%, 
+      rgba(236, 72, 153, 0.2) 25%, 
+      transparent 25%, 
+      transparent 35%, 
+      rgba(249, 115, 22, 0.2) 35%, 
+      rgba(249, 115, 22, 0.2) 50%, 
+      transparent 50%, 
+      transparent 60%, 
+      rgba(99, 102, 241, 0.2) 60%, 
+      rgba(99, 102, 241, 0.2) 75%, 
+      transparent 75%, 
+      transparent 85%, 
+      rgba(20, 184, 166, 0.2) 85%, 
+      rgba(20, 184, 166, 0.2) 100%
+    );
   color: white;
   border-radius: var(--radius-lg);
   margin-bottom: var(--space-8);
   box-shadow: var(--shadow-lg);
 }
-
 .hero h1 {
   font-size: var(--text-5xl);
   margin-bottom: var(--space-4);
@@ -623,112 +640,9 @@ button, .btn {
   gap: var(--space-2);
 }
 
-/* ===== STATUS BADGES ===== */
-.status {
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-full);
-  font-size: var(--text-sm);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  position: relative;
-  overflow: hidden;
-  animation: statusPulse 2s ease-in-out infinite;
-  box-shadow: var(--shadow-md);
-}
 
-@keyframes statusPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
 
-.status-pending {
-  background: var(--gradient-warning);
-  color: white;
-  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
-}
 
-.status-accepted {
-  background: var(--gradient-success);
-  color: white;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-}
-
-.status-rejected {
-  background: var(--gradient-danger);
-  color: white;
-  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
-}
-
-.status-completed {
-  background: var(--gradient-primary);
-  color: white;
-  box-shadow: var(--shadow-glow);
-}
-
-/* ===== MODAL STYLES ===== */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: fadeIn 0.2s ease-out forwards;
-  will-change: opacity;
-  transition: opacity 0.3s ease-out;
-}
-
-.modal-overlay.modal-closing {
-  opacity: 0;
-}
-
-.modal-overlay.modal-closing .modal {
-  transform: translateY(-20px);
-}
-
-.modal {
-  background-color: white;
-  border-radius: var(--radius-lg);
-  width: 90%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: var(--shadow-xl);
-  animation: slideIn 0.3s ease-out;
-  will-change: transform, opacity;
-  transform: translateY(0);
-  transition: transform 0.3s ease-out;
-  position: relative;
-  z-index: 1001;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--space-4);
-  border-bottom: 1px solid var(--gray-200);
-}
-
-.modal-header h3 {
-  margin: 0;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: var(--text-2xl);
-  cursor: pointer;
-  color: var(--gray-500);
-}
-
-.modal-body {
-  padding: var(--space-4);
-}
 
 .product-info {
   background-color: var(--gray-50);
@@ -779,9 +693,121 @@ button, .btn {
   }
 }
 
-/* Fix for modal flickering */
-.modal-overlay * {
-  pointer-events: auto;
+
+
+/* Portal Modal Styles */
+.portal-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.portal-modal-content {
+  background: white;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.portal-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px 0 20px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 20px;
+}
+
+.portal-modal-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.25rem;
+}
+
+.portal-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.portal-modal-close:hover {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.portal-modal-body {
+  padding: 0 20px 20px 20px;
+}
+
+/* Export Form Styles */
+.export-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.form-control {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  transition: border-color var(--transition-fast);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.form-text {
+  font-size: var(--text-sm);
+  color: var(--gray-600);
+  margin-top: var(--space-1);
+}
+
+.form-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+  margin-top: var(--space-4);
+}
+
+.error-message {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+  border: 1px solid #fecaca;
+}
+
+.available-quantity {
+  color: var(--primary-600);
+  font-weight: 500;
 }
 
 /* Responsive */
@@ -821,105 +847,4 @@ button, .btn {
     gap: var(--space-4);
     align-items: flex-start;
   }
-/* Replace the existing modal CSS with this fixed version */
-
-/* Modal */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  background-color: rgba(0, 0, 0, 0.5);
-  animation: fadeIn 0.2s ease-out forwards;
-}
-
-.modal-backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  cursor: pointer;
-}
-
-.modal {
-  background-color: white;
-  border-radius: var(--radius-lg);
-  width: 90%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: var(--shadow-xl);
-  animation: slideIn 0.3s ease-out;
-  position: relative;
-  z-index: 1001;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--space-4);
-  border-bottom: 1px solid var(--gray-200);
-}
-
-.modal-header h3 {
-  margin: 0;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: var(--text-2xl);
-  cursor: pointer;
-  color: var(--gray-500);
-  padding: var(--space-1);
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--text-xl);
-  font-weight: bold;
-}
-
-.close-btn:hover {
-  color: var(--gray-700);
-}
-
-.modal-body {
-  padding: var(--space-4);
-}
-
-.product-info {
-  background-color: var(--gray-50);
-  padding: var(--space-4);
-  border-radius: var(--radius-md);
-  margin-bottom: var(--space-4);
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(-20px); 
-  }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
-  }
-
-  .auth-form, .product-form {
-    padding: var(--space-6);
-  }
-}
 }
