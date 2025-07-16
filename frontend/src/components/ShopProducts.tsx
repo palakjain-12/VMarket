@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { productService, shopkeeperService } from '../services/api';
 import { Product, Shopkeeper } from '../types';
 import ProductCard from './ProductCard';
+import { useAuth } from '../contexts/AuthContext';
 
 const ShopProducts: React.FC = () => {
   const { shopId } = useParams<{ shopId: string }>();
@@ -73,14 +74,21 @@ const ShopProducts: React.FC = () => {
           </div>
         ) : (
           <div className="products-grid">
-            {products.map((product) => (
-              <ProductCard 
-                key={product.id} 
-                product={product} 
-                showActions={false}
-                showExportButton={true}
-              />
-            ))}
+            {products.map((product) => {
+              // Get current user from auth context
+              const { user } = useAuth();
+              // Only show export button if the product doesn't belong to the current user
+              const showExportButton = user?.id !== product.shopkeeper?.id;
+              
+              return (
+                <ProductCard 
+                  key={product.id} 
+                  product={product} 
+                  showActions={false}
+                  showExportButton={showExportButton}
+                />
+              );
+            })}
           </div>
         )}
       </div>

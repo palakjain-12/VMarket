@@ -8,6 +8,7 @@ const ExportRequests: React.FC = () => {
   const [sentRequests, setSentRequests] = useState<ExportRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
 
   useEffect(() => {
     fetchExportRequests();
@@ -28,10 +29,13 @@ const ExportRequests: React.FC = () => {
     }
   };
 
-  const handleAccept = async (requestId: string) => {
+  const handleAccept = async (requestId: string, message?: string) => {
     try {
-      await exportRequestService.accept(requestId);
+      await exportRequestService.accept(requestId, message);
       fetchExportRequests(); // Refresh the list
+      alert('Export request accepted successfully! The product has been added to your inventory.');
+      // Redirect to MyProducts page to see the newly added product
+      window.location.href = '/my-products';
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to accept request');
     }
@@ -102,6 +106,7 @@ const ExportRequests: React.FC = () => {
                     
                     <div className="request-details">
                       <p><strong>From:</strong> {request.fromShop?.shopName} ({request.fromShop?.name})</p>
+                      <p><strong>Product Owner:</strong> {request.product?.shopkeeper?.shopName} ({request.product?.shopkeeper?.name})</p>
                       <p><strong>Quantity:</strong> {request.quantity} units</p>
                       <p><strong>Price:</strong> ₹{request.product?.price}</p>
                       {request.message && (
@@ -116,7 +121,10 @@ const ExportRequests: React.FC = () => {
                       <div className="request-actions">
                         <button
                           className="btn btn-success"
-                          onClick={() => handleAccept(request.id)}
+                          onClick={() => {
+                            const message = prompt('Optional: Add a message for the sender');
+                            handleAccept(request.id, message || undefined);
+                          }}
                         >
                           Accept
                         </button>
@@ -151,6 +159,7 @@ const ExportRequests: React.FC = () => {
                     
                     <div className="request-details">
                       <p><strong>To:</strong> {request.toShop?.shopName} ({request.toShop?.name})</p>
+                      <p><strong>Product Owner:</strong> {request.product?.shopkeeper?.shopName} ({request.product?.shopkeeper?.name})</p>
                       <p><strong>Quantity:</strong> {request.quantity} units</p>
                       <p><strong>Price:</strong> ₹{request.product?.price}</p>
                       {request.message && (

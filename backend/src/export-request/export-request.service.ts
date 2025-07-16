@@ -14,7 +14,7 @@ export class ExportRequestService {
   async create(createExportRequestDto: CreateExportRequestDto, fromShopId: string): Promise<ExportRequest> {
     const { productId, toShopId, quantity, message } = createExportRequestDto;
 
-    // Validate product exists and belongs to the requesting shop
+    // Validate product exists
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
       include: { shopkeeper: true },
@@ -24,8 +24,20 @@ export class ExportRequestService {
       throw new NotFoundException('Product not found');
     }
 
+    // Check if this is a request for someone else's product or sending own product
     if (product.shopkeeperId !== fromShopId) {
-      throw new ForbiddenException('You can only export your own products');
+      // This is a request for someone else's product (REQUEST_FROM_OTHER scenario)
+      // In this case, toShopId should be the product owner's shop ID
+      if (product.shopkeeperId !== toShopId) {
+        throw new ForbiddenException('When requesting products from other shops, the target shop must be the product owner\'s shop');
+      }
+    } else {
+      // This is sending own product to another shop (SEND_MY_PRODUCT scenario)
+      // In this case, fromShopId (current user) should be the product owner
+      // and toShopId should be different from fromShopId
+      if (fromShopId === toShopId) {
+        throw new ForbiddenException('You cannot send products to your own shop');
+      }
     }
 
     // Check if product has sufficient quantity
@@ -42,11 +54,6 @@ export class ExportRequestService {
       throw new NotFoundException('Target shop not found');
     }
 
-    // Cannot export to self
-    if (fromShopId === toShopId) {
-      throw new BadRequestException('Cannot export to your own shop');
-    }
-
     // Check if there's already a pending request for this product to the same shop
     const existingRequest = await this.prisma.exportRequest.findFirst({
       where: {
@@ -60,6 +67,8 @@ export class ExportRequestService {
     if (existingRequest) {
       throw new BadRequestException('There is already a pending export request for this product to the same shop');
     }
+
+    // Create the export request
 
     return this.prisma.exportRequest.create({
       data: {

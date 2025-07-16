@@ -3,16 +3,24 @@ import { shopkeeperService, exportRequestService } from '../services/api';
 import { Product, Shopkeeper } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
+// Define the form type to handle different export scenarios
+export enum ExportFormType {
+  REQUEST_FROM_OTHER = 'REQUEST_FROM_OTHER', // Request product from another shop to my shop
+  SEND_MY_PRODUCT = 'SEND_MY_PRODUCT'  // Send my product to another shop
+}
+
 interface ExportRequestFormProps {
   product: Product;
   onClose: () => void;
   onSuccess: () => void;
+  formType: ExportFormType;
 }
 
 const ExportRequestForm: React.FC<ExportRequestFormProps> = ({
   product,
   onClose,
   onSuccess,
+  formType,
 }) => {
   const [shops, setShops] = useState<Shopkeeper[]>([]);
   const [selectedShopId, setSelectedShopId] = useState('');
@@ -40,13 +48,28 @@ const ExportRequestForm: React.FC<ExportRequestFormProps> = ({
   const fetchShops = async () => {
     try {
       const response = await shopkeeperService.getAll();
-      // If this is the user's own product, filter out their own shop
-      // Otherwise, include all shops for export requests
-      const isOwnProduct = product.shopkeeper?.id === user?.id;
-      const filteredShops = isOwnProduct
-        ? response.data.filter(shop => shop.id !== user?.id)
-        : response.data;
+      let filteredShops: Shopkeeper[] = [];
+      
+      if (formType === ExportFormType.REQUEST_FROM_OTHER) {
+        // For requesting products from other shops to my shop
+        // Filter to only show the product owner's shop
+        filteredShops = response.data.filter(shop => {
+          return shop.id === product.shopkeeper?.id;
+        });
+      } else if (formType === ExportFormType.SEND_MY_PRODUCT) {
+        // For sending my products to other shops
+        // Filter out my own shop
+        filteredShops = response.data.filter(shop => {
+          return shop.id !== user?.id;
+        });
+      }
+      
       setShops(filteredShops);
+      
+      // If there are shops available, select the first one by default
+      if (filteredShops.length > 0) {
+        setSelectedShopId(filteredShops[0].id);
+      }
     } catch (err: any) {
       setError('Failed to fetch shops');
     }
@@ -58,12 +81,25 @@ const ExportRequestForm: React.FC<ExportRequestFormProps> = ({
     setError('');
 
     try {
-      await exportRequestService.create({
-        productId: product.id,
-        toShopId: selectedShopId,
-        quantity,
-        message: message || undefined,
-      });
+      // For both scenarios, we use the same API endpoint but with different parameters
+      // The backend will handle the request based on the fromShopId and toShopId
+      if (formType === ExportFormType.REQUEST_FROM_OTHER) {
+        // When requesting from another shop to my shop
+        await exportRequestService.create({
+          productId: product.id,
+          toShopId: selectedShopId, // The product owner's shop
+          quantity,
+          message: message || undefined,
+        });
+      } else if (formType === ExportFormType.SEND_MY_PRODUCT) {
+        // When sending my product to another shop
+        await exportRequestService.create({
+          productId: product.id,
+          toShopId: selectedShopId, // The target shop
+          quantity,
+          message: message || undefined,
+        });
+      }
       onSuccess();
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to send export request');
@@ -77,13 +113,18 @@ const ExportRequestForm: React.FC<ExportRequestFormProps> = ({
       {error && <div className="error-message">{error}</div>}
 
       <div className="form-group">
-        <label htmlFor="toShop">Send to Shop *</label>
+        <label htmlFor="toShop">
+          {formType === ExportFormType.REQUEST_FROM_OTHER 
+            ? "Request From Shop *" 
+            : "Send To Shop *"}
+        </label>
         <select
           id="toShop"
           value={selectedShopId}
           onChange={(e) => setSelectedShopId(e.target.value)}
           required
           className="form-control"
+          disabled={shops.length === 1} // Disable if there's only one option
         >
           <option value="">Select Shop</option>
           {shops.map((shop) => (
@@ -92,6 +133,11 @@ const ExportRequestForm: React.FC<ExportRequestFormProps> = ({
             </option>
           ))}
         </select>
+        <small className="form-text">
+          {formType === ExportFormType.REQUEST_FROM_OTHER 
+            ? "This is the shop that owns the product you want to export" 
+            : "This is the shop that will receive your product"}
+        </small>
       </div>
 
       <div className="form-group">
@@ -134,7 +180,9 @@ const ExportRequestForm: React.FC<ExportRequestFormProps> = ({
           disabled={loading}
           className="btn btn-primary"
         >
-          {loading ? 'Sending...' : 'Send Request'}
+          {loading ? 'Sending...' : formType === ExportFormType.REQUEST_FROM_OTHER 
+            ? 'Send Request' 
+            : 'Export Product'}
         </button>
       </div>
     </form>

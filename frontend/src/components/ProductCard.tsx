@@ -2,13 +2,15 @@ import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Product } from '../types';
 import { productService } from '../services/api';
-import ExportRequestForm from './ExportRequestForm';
+import ExportRequestForm, { ExportFormType } from './ExportRequestForm';
 import Modal from './Modal';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ProductCardProps {
   product: Product;
   showActions?: boolean;
-  showExportButton?: boolean;
+  showExportButton?: boolean; // For requesting products from other shops
+  showSendButton?: boolean;   // For sending my products to other shops
   onUpdate?: () => void;
 }
 
@@ -16,14 +18,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
   product, 
   showActions = true, 
   showExportButton = false,
+  showSendButton = false,
   onUpdate 
 }) => {
   const [showExportForm, setShowExportForm] = useState(false);
+  const [exportFormType, setExportFormType] = useState<ExportFormType>(ExportFormType.REQUEST_FROM_OTHER);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   
-  const openExportForm = useCallback((e: React.MouseEvent) => {
+  const openExportForm = useCallback((type: ExportFormType) => (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setExportFormType(type);
     setShowExportForm(true);
   }, []);
   
@@ -115,9 +121,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
           {showExportButton && (
             <button 
               className="btn btn-success"
-              onClick={openExportForm}
+              onClick={openExportForm(ExportFormType.REQUEST_FROM_OTHER)}
             >
               Request Export
+            </button>
+          )}
+          
+          {showSendButton && (
+            <button 
+              className="btn btn-primary"
+              onClick={openExportForm(ExportFormType.SEND_MY_PRODUCT)}
+            >
+              Send to Shop
             </button>
           )}
         </div>
@@ -126,19 +141,26 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <Modal 
         isOpen={showExportForm} 
         onClose={closeExportForm}
-        title="Request Product Export"
+        title={exportFormType === ExportFormType.REQUEST_FROM_OTHER ? "Request Product Export" : "Send Product to Shop"}
       >
         <div className="product-info">
           <h4>{product.name}</h4>
           <p><strong>Available Quantity:</strong> {product.availableQuantity !== undefined ? product.availableQuantity : product.quantity} units</p>
-          <p><strong>From Shop:</strong> {product.shopkeeper?.shopName}</p>
+          {exportFormType === ExportFormType.REQUEST_FROM_OTHER ? (
+            <p><strong>From Shop:</strong> {product.shopkeeper?.shopName}</p>
+          ) : (
+            <p><strong>Your Shop:</strong> {user?.shopName}</p>
+          )}
         </div>
         <ExportRequestForm
           product={product}
           onClose={closeExportForm}
+          formType={exportFormType}
           onSuccess={() => {
             closeExportForm();
-            alert('Export request sent successfully!');
+            alert(exportFormType === ExportFormType.REQUEST_FROM_OTHER ? 
+              'Export request sent successfully!' : 
+              'Product export initiated successfully!');
             if (onUpdate) onUpdate();
           }}
         />

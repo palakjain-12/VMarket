@@ -86,6 +86,9 @@ export class ProductService {
       ...product,
       availableQuantity: Math.max(0, product.quantity - (pendingQuantityMap[product.id] || 0)),
     }));
+    
+    // Remove the debug logging as it's no longer needed
+    // The issue is not with missing products, but with how we're fetching them
 
     return {
       data: productsWithAvailableQuantity,
@@ -156,6 +159,10 @@ export class ProductService {
       }),
       this.prisma.product.count({ where: { shopkeeperId } }),
     ]);
+    
+    // We don't need to fetch accepted export requests separately
+    // The products should already be in the shop's inventory when an export request is accepted
+
 
     // Get all pending export requests for these products
     const productIds = products.map(product => product.id);
