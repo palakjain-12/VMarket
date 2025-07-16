@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Header from './components/Header';
+import Footer from './components/Footer';
 import Home from './components/Home';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
@@ -59,6 +60,7 @@ const App: React.FC = () => {
               />
             </Routes>
           </main>
+          <Footer />
         </div>
       </Router>
     </AuthProvider>

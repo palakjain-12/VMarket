@@ -1,0 +1,65 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: vmarket-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vmarket_user
+      POSTGRES_PASSWORD: vmarket_password
+      POSTGRES_DB: vmarket_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - vmarket-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vmarket_user -d vmarket_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: vmarket-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - ./backend/.env.docker
+    ports:
+      - "3001:3001"
+    networks:
+      - vmarket-network
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_URL=/api
+    container_name: vmarket-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    env_file:
+      - ./frontend/.env.docker
+    ports:
+      - "80:80"
+    networks:
+      - vmarket-network
+
+networks:
+  vmarket-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

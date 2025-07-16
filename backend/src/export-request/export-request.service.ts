@@ -502,12 +502,16 @@ export class ExportRequestService {
   }
 
   async acceptRequest(id: string, shopkeeperId: string, acceptDto: AcceptExportRequestDto): Promise<ExportRequest> {
+    console.log(`Starting acceptRequest for id: ${id}, shopkeeperId: ${shopkeeperId}`);
+    
     const exportRequest = await this.prisma.exportRequest.findUnique({
       where: { id },
       include: {
         product: true,
       },
     });
+
+    console.log('Export request found:', JSON.stringify(exportRequest, null, 2));
 
     if (!exportRequest) {
       throw new NotFoundException('Export request not found');
@@ -527,57 +531,78 @@ export class ExportRequestService {
     if (exportRequest.product.quantity < exportRequest.quantity) {
       throw new BadRequestException(`Insufficient quantity. Available: ${exportRequest.product.quantity}, Requested: ${exportRequest.quantity}`);
     }
+    
+    console.log('All validation checks passed, proceeding with transaction');
 
     // Use transaction to ensure atomicity
-    return this.prisma.$transaction(async (prisma) => {
-      // Update the export request status
-      const updatedRequest = await prisma.exportRequest.update({
-        where: { id },
-        data: {
-          status: ExportRequestStatus.ACCEPTED,
-          message: acceptDto.message,
-        },
-        include: {
-          product: {
-            include: {
-              shopkeeper: {
-                select: {
-                  id: true,
-                  name: true,
-                  shopName: true,
-                  address: true,
+    try {
+      return await this.prisma.$transaction(async (prisma) => {
+        console.log('Starting transaction');
+        
+        // Update the export request status
+        const updatedRequest = await prisma.exportRequest.update({
+          where: { id },
+          data: {
+            status: ExportRequestStatus.ACCEPTED,
+            message: acceptDto.message,
+          },
+          include: {
+            product: {
+              include: {
+                shopkeeper: {
+                  select: {
+                    id: true,
+                    name: true,
+                    shopName: true,
+                    address: true,
+                  },
                 },
               },
             },
-          },
-          fromShop: {
-            select: {
-              id: true,
-              name: true,
-              shopName: true,
-              address: true,
+            fromShop: {
+              select: {
+                id: true,
+                name: true,
+                shopName: true,
+                address: true,
+              },
+            },
+            toShop: {
+              select: {
+                id: true,
+                name: true,
+                shopName: true,
+                address: true,
+              },
             },
           },
-          toShop: {
-            select: {
-              id: true,
-              name: true,
-              shopName: true,
-              address: true,
-            },
-          },
-        },
-      });
+        });
+        
+        console.log('Export request updated to ACCEPTED');
 
       // Reduce quantity from the original product
-      await prisma.product.update({
+      const originalProduct = await prisma.product.findUnique({
+        where: { id: exportRequest.productId },
+      });
+      console.log('Original product before update:', JSON.stringify(originalProduct, null, 2));
+      
+      if (!originalProduct) {
+        throw new NotFoundException(`Product with ID ${exportRequest.productId} not found`);
+      }
+      
+      // Calculate new quantity to ensure it's not negative
+      const newQuantity = Math.max(0, originalProduct.quantity - exportRequest.quantity);
+      console.log(`Calculating new quantity: ${originalProduct.quantity} - ${exportRequest.quantity} = ${newQuantity}`);
+      
+      const updatedOriginalProduct = await prisma.product.update({
         where: { id: exportRequest.productId },
         data: {
-          quantity: {
-            decrement: exportRequest.quantity,
-          },
+          quantity: newQuantity,
+          updatedAt: new Date(), // Ensure updatedAt is set to trigger cache invalidation
         },
       });
+      
+      console.log('Original product after update:', JSON.stringify(updatedOriginalProduct, null, 2));
 
       // Check if the accepting shop already has this product
       const existingProduct = await prisma.product.findFirst({
@@ -586,20 +611,32 @@ export class ExportRequestService {
           name: exportRequest.product.name,
         },
       });
-
+      
+      console.log('Checking if product exists in receiving shop:', existingProduct ? 'Found' : 'Not found');
+      
       if (existingProduct) {
+        console.log('Existing product before update:', JSON.stringify(existingProduct, null, 2));
+        
         // If product exists, increase quantity
-        await prisma.product.update({
+        // Calculate new quantity to ensure it's correct
+        // existingProduct cannot be null here because of the if check above
+        const newQuantity = existingProduct.quantity + exportRequest.quantity;
+        console.log(`Calculating new quantity for receiving shop: ${existingProduct.quantity} + ${exportRequest.quantity} = ${newQuantity}`);
+        
+        const updatedExistingProduct = await prisma.product.update({
           where: { id: existingProduct.id },
           data: {
-            quantity: {
-              increment: exportRequest.quantity,
-            },
+            quantity: newQuantity,
+            updatedAt: new Date(), // Ensure updatedAt is set to trigger cache invalidation
           },
         });
+        
+        console.log('Existing product after update:', JSON.stringify(updatedExistingProduct, null, 2));
       } else {
         // If product doesn't exist, create new product
-        await prisma.product.create({
+        console.log(`Creating new product in receiving shop with quantity: ${exportRequest.quantity}`);
+        
+        const newProduct = await prisma.product.create({
           data: {
             name: exportRequest.product.name,
             description: exportRequest.product.description,
@@ -608,12 +645,21 @@ export class ExportRequestService {
             expiryDate: exportRequest.product.expiryDate,
             category: exportRequest.product.category,
             shopkeeperId: shopkeeperId,
+            createdAt: new Date(), // Ensure createdAt is explicitly set
+            updatedAt: new Date(), // Ensure updatedAt is explicitly set
           },
         });
+        
+        console.log('New product created:', JSON.stringify(newProduct, null, 2));
       }
-
+      
+      console.log('Transaction completed successfully');
       return updatedRequest;
     });
+    } catch (error) {
+      console.error('Transaction failed:', error);
+      throw new BadRequestException('Failed to process export request: ' + error.message);
+    }
   }
 
   async rejectRequest(id: string, shopkeeperId: string, rejectDto: RejectExportRequestDto): Promise<ExportRequest> {

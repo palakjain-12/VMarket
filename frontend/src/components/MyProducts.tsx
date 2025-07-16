@@ -15,6 +15,8 @@ const MyProducts: React.FC = () => {
 
   const fetchMyProducts = async () => {
     try {
+      setLoading(true); // Set loading to true to indicate data is being fetched
+      // Force a fresh request to ensure we get the latest data
       const response = await productService.getMyProducts();
       setProducts(response.data);
     } catch (err: any) {

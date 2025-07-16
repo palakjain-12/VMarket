@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 const ShopProducts: React.FC = () => {
   const { shopId } = useParams<{ shopId: string }>();
+  const { user } = useAuth(); // Move useAuth hook to the top level
   const [products, setProducts] = useState<Product[]>([]);
   const [shop, setShop] = useState<Shopkeeper | null>(null);
   const [loading, setLoading] = useState(true);
@@ -75,8 +76,6 @@ const ShopProducts: React.FC = () => {
         ) : (
           <div className="products-grid">
             {products.map((product) => {
-              // Get current user from auth context
-              const { user } = useAuth();
               // Only show export button if the product doesn't belong to the current user
               const showExportButton = user?.id !== product.shopkeeper?.id;
               

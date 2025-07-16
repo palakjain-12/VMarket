@@ -32,10 +32,18 @@ const ExportRequests: React.FC = () => {
   const handleAccept = async (requestId: string, message?: string) => {
     try {
       await exportRequestService.accept(requestId, message);
-      fetchExportRequests(); // Refresh the list
-      alert('Export request accepted successfully! The product has been added to your inventory.');
-      // Redirect to MyProducts page to see the newly added product
-      window.location.href = '/my-products';
+      // Force refresh of the data
+      await fetchExportRequests(); // Ensure we await this call
+      
+      // Notify the user
+      alert('Export request accepted successfully! The product has been transferred from the sender\'s inventory to your inventory.');
+      
+      // Add a small delay to ensure the backend transaction completes
+      setTimeout(() => {
+        // Redirect to MyProducts page to see the newly added product
+        // Use window.location.href to force a full page reload which will refresh all data
+        window.location.href = '/my-products';
+      }, 1000); // 1 second delay
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to accept request');
     }

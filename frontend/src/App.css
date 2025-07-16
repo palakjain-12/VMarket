@@ -475,12 +475,38 @@ button, .btn {
   gap: var(--space-2);
 }
 
-/* Auth Forms */
+/* Updated Auth Forms - Fixed background coverage and text colors */
+.auth-page {
+  background-image: url('./market-background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* This ensures the background stays fixed during scroll */
+  position: relative;
+  min-height: 100vh; /* Ensure it covers the full viewport height */
+  width: 100%;
+}
+
+.auth-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* This creates the blur effect */
+  backdrop-filter: blur(5px);
+  z-index: 1;
+}
+
 .auth-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 200px);
+  min-height: 100vh; /* Changed from calc(100vh - 200px) to 100vh */
+  position: relative;
+  z-index: 2;
+  padding: var(--space-4); /* Add some padding for mobile */
 }
 
 .auth-form {
@@ -495,8 +521,65 @@ button, .btn {
 .auth-form h2 {
   text-align: center;
   margin-bottom: var(--space-6);
+  color: var(--gray-900); /* Ensure form heading is dark */
 }
 
+/* Additional styles for any text that might appear outside the form */
+.auth-page h1,
+.auth-page h2,
+.auth-page h3,
+.auth-page h4,
+.auth-page h5,
+.auth-page h6,
+.auth-page p,
+.auth-page span,
+.auth-page div {
+  color: white; /* Make all text white when directly on the background */
+}
+
+/* But keep form elements with their original colors */
+.auth-form h1,
+.auth-form h2,
+.auth-form h3,
+.auth-form h4,
+.auth-form h5,
+.auth-form h6,
+.auth-form p,
+.auth-form span,
+.auth-form div {
+  color: var(--gray-900); /* Keep form text dark */
+}
+
+/* Ensure the App container doesn't interfere */
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Make sure the main content area doesn't add extra padding on auth pages */
+.auth-page .main-content {
+  padding: 0; /* Remove default padding for auth pages */
+  max-width: none; /* Remove max-width constraint */
+  margin: 0; /* Remove auto margins */
+  width: 100%;
+  flex: 1;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .auth-container {
+    padding: var(--space-2);
+  }
+  
+  .auth-form {
+    padding: var(--space-6);
+  }
+  
+  .auth-page {
+    background-attachment: scroll; /* Better performance on mobile */
+  }
+}
 .form-group {
   margin-bottom: var(--space-4);
 }
@@ -540,6 +623,79 @@ button, .btn {
 .auth-form p {
   text-align: center;
   margin-bottom: 0;
+}
+
+/* Footer */
+.footer {
+  background-color: var(--gray-800);
+  color: var(--gray-200);
+  padding: var(--space-8) var(--space-4) var(--space-4);
+  margin-top: auto;
+}
+
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: var(--space-8);
+}
+
+.footer-section {
+  flex: 1;
+  min-width: 250px;
+}
+
+.footer-section h3 {
+  color: white;
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-4);
+}
+
+.footer-section h4 {
+  color: white;
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-4);
+}
+
+.footer-section p {
+  color: var(--gray-400);
+  margin-bottom: var(--space-2);
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-links li {
+  margin-bottom: var(--space-2);
+}
+
+.footer-links a {
+  color: var(--gray-400);
+  transition: color var(--transition-fast);
+}
+
+.footer-links a:hover {
+  color: var(--primary-400);
+}
+
+.footer-bottom {
+  border-top: 1px solid var(--gray-700);
+  padding-top: var(--space-4);
+  margin-top: var(--space-8);
+  text-align: center;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.footer-bottom p {
+  color: var(--gray-500);
+  font-size: var(--text-sm);
+  margin: 0;
 }
 
 /* Export Requests */

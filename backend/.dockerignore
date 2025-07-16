@@ -1,0 +1,28 @@
+# Node.js
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Environment
+.env
+.env.local
+.env.development
+.env.test
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+
+# Tests
+test
+coverage
+
+# Misc
+README.md
+LICENSE
+.DS_Store
