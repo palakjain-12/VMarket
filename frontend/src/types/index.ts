@@ -27,7 +27,7 @@ export interface ExportRequest {
   toShopId: string;
   quantity: number;
   message?: string;
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED';
+  status: "PENDING" | "ACCEPTED" | "REJECTED" | "COMPLETED";
   product?: Product;
   fromShop?: Shopkeeper;
   toShop?: Shopkeeper;

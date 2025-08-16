@@ -16,11 +16,13 @@ This document provides instructions for running the VMarket application using Do
 We've provided test scripts to help you build, start, and verify the containers:
 
 **For Windows:**
+
 ```powershell
 .\docker-test.ps1
 ```
 
 **For Linux/Mac:**
+
 ```bash
 ./docker-test.sh
 ```
@@ -34,6 +36,7 @@ docker-compose up -d --build
 ```
 
 This command will:
+
 - Build the Docker images for the frontend and backend
 - Start the PostgreSQL database
 - Run database migrations

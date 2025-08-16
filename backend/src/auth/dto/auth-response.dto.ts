@@ -6,7 +6,7 @@ export class AuthResponseDto {
     email: string;
     name: string;
     shopName: string;
-    phone?: string | null;  // allow null
+    phone?: string | null;
     address: string;
   };
 }

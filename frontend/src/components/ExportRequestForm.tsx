@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { shopkeeperService, exportRequestService } from '../services/api';
-import { Product, Shopkeeper } from '../types';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import { shopkeeperService, exportRequestService } from "../services/api";
+import { Product, Shopkeeper } from "../types";
+import { useAuth } from "../contexts/AuthContext";
 
 // Define the form type to handle different export scenarios
 export enum ExportFormType {
-  REQUEST_FROM_OTHER = 'REQUEST_FROM_OTHER', // Request product from another shop to my shop
-  SEND_MY_PRODUCT = 'SEND_MY_PRODUCT'  // Send my product to another shop
+  REQUEST_FROM_OTHER = "REQUEST_FROM_OTHER", // Request product from another shop to my shop
+  SEND_MY_PRODUCT = "SEND_MY_PRODUCT", // Send my product to another shop
 }
 
 interface ExportRequestFormProps {
@@ -23,20 +23,23 @@ const ExportRequestForm: React.FC<ExportRequestFormProps> = ({
   formType,
 }) => {
   const [shops, setShops] = useState<Shopkeeper[]>([]);
-  const [selectedShopId, setSelectedShopId] = useState('');
+  const [selectedShopId, setSelectedShopId] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { user } = useAuth();
 
   useEffect(() => {
     // Fetch shops data when component mounts
     fetchShops();
-    
+
     // Use availableQuantity if it exists, otherwise use quantity
-    const availableQty = product.availableQuantity !== undefined ? product.availableQuantity : product.quantity;
-    
+    const availableQty =
+      product.availableQuantity !== undefined
+        ? product.availableQuantity
+        : product.quantity;
+
     // Set initial quantity to 1 (default) or half of available quantity if product has more than 2 units
     if (availableQty > 2) {
       setQuantity(Math.floor(availableQty / 2));
@@ -49,36 +52,36 @@ const ExportRequestForm: React.FC<ExportRequestFormProps> = ({
     try {
       const response = await shopkeeperService.getAll();
       let filteredShops: Shopkeeper[] = [];
-      
+
       if (formType === ExportFormType.REQUEST_FROM_OTHER) {
         // For requesting products from other shops to my shop
         // Filter to only show the product owner's shop
-        filteredShops = response.data.filter(shop => {
+        filteredShops = response.data.filter((shop) => {
           return shop.id === product.shopkeeper?.id;
         });
       } else if (formType === ExportFormType.SEND_MY_PRODUCT) {
         // For sending my products to other shops
         // Filter out my own shop
-        filteredShops = response.data.filter(shop => {
+        filteredShops = response.data.filter((shop) => {
           return shop.id !== user?.id;
         });
       }
-      
+
       setShops(filteredShops);
-      
+
       // If there are shops available, select the first one by default
       if (filteredShops.length > 0) {
         setSelectedShopId(filteredShops[0].id);
       }
     } catch (err: any) {
-      setError('Failed to fetch shops');
+      setError("Failed to fetch shops");
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       // For both scenarios, we use the same API endpoint but with different parameters
@@ -102,7 +105,7 @@ const ExportRequestForm: React.FC<ExportRequestFormProps> = ({
       }
       onSuccess();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to send export request');
+      setError(err.response?.data?.message || "Failed to send export request");
     } finally {
       setLoading(false);
     }
@@ -114,8 +117,8 @@ const ExportRequestForm: React.FC<ExportRequestFormProps> = ({
 
       <div className="form-group">
         <label htmlFor="toShop">
-          {formType === ExportFormType.REQUEST_FROM_OTHER 
-            ? "Request From Shop *" 
+          {formType === ExportFormType.REQUEST_FROM_OTHER
+            ? "Request From Shop *"
             : "Send To Shop *"}
         </label>
         <select
@@ -134,8 +137,8 @@ const ExportRequestForm: React.FC<ExportRequestFormProps> = ({
           ))}
         </select>
         <small className="form-text">
-          {formType === ExportFormType.REQUEST_FROM_OTHER 
-            ? "This is the shop that owns the product you want to export" 
+          {formType === ExportFormType.REQUEST_FROM_OTHER
+            ? "This is the shop that owns the product you want to export"
             : "This is the shop that will receive your product"}
         </small>
       </div>
@@ -148,11 +151,21 @@ const ExportRequestForm: React.FC<ExportRequestFormProps> = ({
           value={quantity}
           onChange={(e) => setQuantity(Number(e.target.value))}
           min="1"
-          max={product.availableQuantity !== undefined ? product.availableQuantity : product.quantity}
+          max={
+            product.availableQuantity !== undefined
+              ? product.availableQuantity
+              : product.quantity
+          }
           required
           className="form-control"
         />
-        <small className="form-text">Maximum available: {product.availableQuantity !== undefined ? product.availableQuantity : product.quantity} units</small>
+        <small className="form-text">
+          Maximum available:{" "}
+          {product.availableQuantity !== undefined
+            ? product.availableQuantity
+            : product.quantity}{" "}
+          units
+        </small>
       </div>
 
       <div className="form-group">
@@ -168,21 +181,15 @@ const ExportRequestForm: React.FC<ExportRequestFormProps> = ({
       </div>
 
       <div className="form-actions">
-        <button 
-          type="button" 
-          onClick={onClose}
-          className="btn btn-secondary"
-        >
+        <button type="button" onClick={onClose} className="btn btn-secondary">
           Cancel
         </button>
-        <button 
-          type="submit" 
-          disabled={loading}
-          className="btn btn-primary"
-        >
-          {loading ? 'Sending...' : formType === ExportFormType.REQUEST_FROM_OTHER 
-            ? 'Send Request' 
-            : 'Export Product'}
+        <button type="submit" disabled={loading} className="btn btn-primary">
+          {loading
+            ? "Sending..."
+            : formType === ExportFormType.REQUEST_FROM_OTHER
+              ? "Send Request"
+              : "Export Product"}
         </button>
       </div>
     </form>

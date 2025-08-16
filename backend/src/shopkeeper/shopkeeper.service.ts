@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateShopkeeperDto } from './dto/create-shopkeeper.dto';
 import { UpdateShopkeeperDto } from './dto/update-shopkeeper.dto';
@@ -10,7 +14,9 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 export class ShopkeeperService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createShopkeeperDto: CreateShopkeeperDto): Promise<Omit<Shopkeeper, 'password'>> {
+  async create(
+    createShopkeeperDto: CreateShopkeeperDto,
+  ): Promise<Omit<Shopkeeper, 'password'>> {
     const { email, password, ...shopkeeperData } = createShopkeeperDto;
 
     // Check if shopkeeper already exists
@@ -104,7 +110,10 @@ export class ShopkeeperService {
     });
   }
 
-  async update(id: string, updateShopkeeperDto: UpdateShopkeeperDto): Promise<Omit<Shopkeeper, 'password'>> {
+  async update(
+    id: string,
+    updateShopkeeperDto: UpdateShopkeeperDto,
+  ): Promise<Omit<Shopkeeper, 'password'>> {
     const existingShopkeeper = await this.prisma.shopkeeper.findUnique({
       where: { id },
     });
@@ -136,7 +145,10 @@ export class ShopkeeperService {
     });
   }
 
-  async validatePassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
+  async validatePassword(
+    plainPassword: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
     return bcrypt.compare(plainPassword, hashedPassword);
   }
 }

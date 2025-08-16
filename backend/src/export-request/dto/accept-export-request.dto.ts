@@ -6,4 +6,3 @@ export class AcceptExportRequestDto {
   @IsOptional()
   message?: string;
 }
-

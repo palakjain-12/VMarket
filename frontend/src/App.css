@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap");
 
 /* ===== CSS RESET & BASE ===== */
 *,
@@ -47,9 +47,12 @@
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.3);
 
   /* Spacing */
@@ -90,14 +93,19 @@
 }
 
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   background-color: var(--gray-50);
   color: var(--gray-800);
   line-height: 1.5;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Montserrat', sans-serif;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Montserrat", sans-serif;
   font-weight: 600;
   line-height: 1.2;
   color: var(--gray-900);
@@ -130,7 +138,8 @@ a:hover {
   color: var(--primary-700);
 }
 
-button, .btn {
+button,
+.btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -238,7 +247,7 @@ button, .btn {
 }
 
 .nav a::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -4px;
   left: 0;
@@ -307,24 +316,29 @@ button, .btn {
 .hero {
   text-align: center;
   padding: var(--space-12) var(--space-4);
-  background: 
-    linear-gradient(135deg, rgba(16, 185, 129, 0.85) 0%, rgba(20, 184, 166, 0.85) 100%),
-    linear-gradient(90deg, 
-      transparent 0%, 
-      transparent 10%, 
-      rgba(236, 72, 153, 0.2) 10%, 
-      rgba(236, 72, 153, 0.2) 25%, 
-      transparent 25%, 
-      transparent 35%, 
-      rgba(249, 115, 22, 0.2) 35%, 
-      rgba(249, 115, 22, 0.2) 50%, 
-      transparent 50%, 
-      transparent 60%, 
-      rgba(99, 102, 241, 0.2) 60%, 
-      rgba(99, 102, 241, 0.2) 75%, 
-      transparent 75%, 
-      transparent 85%, 
-      rgba(20, 184, 166, 0.2) 85%, 
+  background:
+    linear-gradient(
+      135deg,
+      rgba(16, 185, 129, 0.85) 0%,
+      rgba(20, 184, 166, 0.85) 100%
+    ),
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent 10%,
+      rgba(236, 72, 153, 0.2) 10%,
+      rgba(236, 72, 153, 0.2) 25%,
+      transparent 25%,
+      transparent 35%,
+      rgba(249, 115, 22, 0.2) 35%,
+      rgba(249, 115, 22, 0.2) 50%,
+      transparent 50%,
+      transparent 60%,
+      rgba(99, 102, 241, 0.2) 60%,
+      rgba(99, 102, 241, 0.2) 75%,
+      transparent 75%,
+      transparent 85%,
+      rgba(20, 184, 166, 0.2) 85%,
       rgba(20, 184, 166, 0.2) 100%
     );
   color: white;
@@ -364,19 +378,22 @@ button, .btn {
   font-size: var(--text-lg);
 }
 
-.shops-section, .quick-actions {
+.shops-section,
+.quick-actions {
   margin-bottom: var(--space-12);
 }
 
-.shops-section h2, .quick-actions h2 {
+.shops-section h2,
+.quick-actions h2 {
   text-align: center;
   margin-bottom: var(--space-8);
   position: relative;
   display: inline-block;
 }
 
-.shops-section h2::after, .quick-actions h2::after {
-  content: '';
+.shops-section h2::after,
+.quick-actions h2::after {
+  content: "";
   position: absolute;
   bottom: -10px;
   left: 50%;
@@ -387,41 +404,56 @@ button, .btn {
   border-radius: var(--radius-full);
 }
 
-.shops-grid, .products-grid, .actions-grid {
+.shops-grid,
+.products-grid,
+.actions-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--space-6);
 }
 
-.shop-card, .product-card, .action-card, .request-card {
+.shop-card,
+.product-card,
+.action-card,
+.request-card {
   background-color: white;
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-md);
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  transition:
+    transform var(--transition-normal),
+    box-shadow var(--transition-normal);
 }
 
-.shop-card:hover, .product-card:hover, .action-card:hover {
+.shop-card:hover,
+.product-card:hover,
+.action-card:hover {
   transform: translateY(-5px);
   box-shadow: var(--shadow-lg);
 }
 
-.shop-card h3, .product-card h3, .action-card h3 {
+.shop-card h3,
+.product-card h3,
+.action-card h3 {
   color: var(--gray-900);
   margin-bottom: var(--space-2);
 }
 
-.shop-card p, .product-card p, .action-card p {
+.shop-card p,
+.product-card p,
+.action-card p {
   color: var(--gray-600);
   margin-bottom: var(--space-2);
 }
 
-.shop-card, .action-card {
+.shop-card,
+.action-card {
   padding: var(--space-6);
   text-align: center;
 }
 
-.shop-card .btn, .action-card .btn {
+.shop-card .btn,
+.action-card .btn {
   margin-top: var(--space-4);
   width: 100%;
 }
@@ -464,7 +496,8 @@ button, .btn {
   margin-bottom: var(--space-4);
 }
 
-.product-info, .shop-info {
+.product-info,
+.shop-info {
   margin-bottom: var(--space-4);
 }
 
@@ -477,7 +510,7 @@ button, .btn {
 
 /* Updated Auth Forms - Fixed background coverage and text colors */
 .auth-page {
-  background-image: url('./market-background.jpg');
+  background-image: url("./market-background.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -488,7 +521,7 @@ button, .btn {
 }
 
 .auth-page::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -571,11 +604,11 @@ button, .btn {
   .auth-container {
     padding: var(--space-2);
   }
-  
+
   .auth-form {
     padding: var(--space-6);
   }
-  
+
   .auth-page {
     background-attachment: scroll; /* Better performance on mobile */
   }
@@ -591,7 +624,9 @@ button, .btn {
   color: var(--gray-700);
 }
 
-.form-group input, .form-group textarea, .form-group select {
+.form-group input,
+.form-group textarea,
+.form-group select {
   width: 100%;
   padding: var(--space-3);
   border: 1px solid var(--gray-300);
@@ -600,7 +635,9 @@ button, .btn {
   transition: border-color var(--transition-fast);
 }
 
-.form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
   outline: none;
   border-color: var(--primary-500);
   box-shadow: 0 0 0 3px var(--primary-100);
@@ -734,7 +771,7 @@ button, .btn {
 }
 
 .tab.active::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -1px;
   left: 0;
@@ -796,10 +833,6 @@ button, .btn {
   gap: var(--space-2);
 }
 
-
-
-
-
 .product-info {
   background-color: var(--gray-50);
   padding: var(--space-4);
@@ -834,22 +867,24 @@ button, .btn {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(-20px); 
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
-
-
 
 /* Portal Modal Styles */
 .portal-modal-overlay {
@@ -973,31 +1008,33 @@ button, .btn {
     gap: var(--space-4);
     padding: var(--space-4) var(--space-2);
   }
-  
+
   .nav {
     width: 100%;
     justify-content: space-between;
     overflow-x: auto;
     padding-bottom: var(--space-2);
   }
-  
+
   .header-actions {
     width: 100%;
     justify-content: center;
   }
-  
-  .shops-grid, .products-grid, .actions-grid {
+
+  .shops-grid,
+  .products-grid,
+  .actions-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .hero {
     padding: var(--space-8) var(--space-4);
   }
-  
+
   .hero h1 {
     font-size: var(--text-4xl);
   }
-  
+
   .page-header {
     flex-direction: column;
     gap: var(--space-4);

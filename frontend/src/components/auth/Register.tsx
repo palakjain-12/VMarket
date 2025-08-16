@@ -1,41 +1,43 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { authService } from '../../services/api';
-import { RegisterData } from '../../types';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { authService } from "../../services/api";
+import { RegisterData } from "../../types";
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState<RegisterData>({
-    email: '',
-    password: '',
-    name: '',
-    phone: '',
-    shopName: '',
-    address: '',
+    email: "",
+    password: "",
+    name: "",
+    phone: "",
+    shopName: "",
+    address: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  
+  const [error, setError] = useState("");
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const response = await authService.register(formData);
       login(response.access_token, response.shopkeeper);
-      navigate('/');
+      navigate("/");
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -50,9 +52,9 @@ const Register: React.FC = () => {
             <h2>Create Account</h2>
             <p className="subtitle">Register your shop on VMarket</p>
           </div>
-          
+
           {error && <div className="error-message">{error}</div>}
-          
+
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="form-row">
               <div className="form-group">
@@ -142,17 +144,20 @@ const Register: React.FC = () => {
               />
             </div>
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
               className="btn btn-primary btn-block"
             >
-              {loading ? 'Creating Account...' : 'Register'}
+              {loading ? "Creating Account..." : "Register"}
             </button>
 
             <div className="auth-footer">
               <p>
-                Already have an account? <Link to="/login" className="auth-link">Login</Link>
+                Already have an account?{" "}
+                <Link to="/login" className="auth-link">
+                  Login
+                </Link>
               </p>
             </div>
           </form>

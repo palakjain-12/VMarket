@@ -1,25 +1,25 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { productService } from '../services/api';
-import { CreateProductData } from '../types';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { productService } from "../services/api";
+import { CreateProductData } from "../types";
 
 const AddProduct: React.FC = () => {
   const [formData, setFormData] = useState<CreateProductData>({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
     price: 1,
     quantity: 1,
-    expiryDate: '',
-    category: '',
+    expiryDate: "",
+    category: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       // Clean up form data before sending
@@ -31,19 +31,23 @@ const AddProduct: React.FC = () => {
       };
 
       await productService.create(cleanedData);
-      navigate('/my-products');
+      navigate("/my-products");
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create product');
+      setError(err.response?.data?.message || "Failed to create product");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: name === 'price' || name === 'quantity' ? Number(value) : value,
+      [name]: name === "price" || name === "quantity" ? Number(value) : value,
     });
   };
 
@@ -151,19 +155,19 @@ const AddProduct: React.FC = () => {
           </div>
 
           <div className="form-actions">
-            <button 
-              type="button" 
-              onClick={() => navigate('/my-products')}
+            <button
+              type="button"
+              onClick={() => navigate("/my-products")}
               className="btn btn-secondary"
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
               className="btn btn-primary"
             >
-              {loading ? 'Adding...' : 'Add Product'}
+              {loading ? "Adding..." : "Add Product"}
             </button>
           </div>
         </form>

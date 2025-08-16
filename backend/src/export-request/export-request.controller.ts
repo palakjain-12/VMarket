@@ -27,8 +27,14 @@ export class ExportRequestController {
   constructor(private readonly exportRequestService: ExportRequestService) {}
 
   @Post()
-  async create(@Body() createExportRequestDto: CreateExportRequestDto, @Request() req) {
-    return this.exportRequestService.create(createExportRequestDto, req.user.sub);
+  async create(
+    @Body() createExportRequestDto: CreateExportRequestDto,
+    @Request() req,
+  ) {
+    return this.exportRequestService.create(
+      createExportRequestDto,
+      req.user.sub,
+    );
   }
 
   @Get()
@@ -38,23 +44,38 @@ export class ExportRequestController {
 
   @Get('my-requests')
   async findMyRequests(@Request() req, @Query() paginationDto: PaginationDto) {
-    return this.exportRequestService.findMyRequests(req.user.sub, paginationDto);
+    return this.exportRequestService.findMyRequests(
+      req.user.sub,
+      paginationDto,
+    );
   }
 
   @Get('pending-for-me')
-  async findPendingForMe(@Request() req, @Query() paginationDto: PaginationDto) {
-    return this.exportRequestService.findRequestsForMe(req.user.sub, paginationDto);
+  async findPendingForMe(
+    @Request() req,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    return this.exportRequestService.findRequestsForMe(
+      req.user.sub,
+      paginationDto,
+    );
   }
 
   // ADD THESE MISSING ENDPOINTS FOR FRONTEND COMPATIBILITY
   @Get('received')
   async getReceived(@Request() req, @Query() paginationDto: PaginationDto) {
-    return this.exportRequestService.findRequestsForMe(req.user.sub, paginationDto);
+    return this.exportRequestService.findRequestsForMe(
+      req.user.sub,
+      paginationDto,
+    );
   }
 
   @Get('sent')
   async getSent(@Request() req, @Query() paginationDto: PaginationDto) {
-    return this.exportRequestService.findMyRequests(req.user.sub, paginationDto);
+    return this.exportRequestService.findMyRequests(
+      req.user.sub,
+      paginationDto,
+    );
   }
 
   @Get(':id')
@@ -64,7 +85,9 @@ export class ExportRequestController {
       exportRequest.fromShopId !== req.user.sub &&
       exportRequest.toShopId !== req.user.sub
     ) {
-      throw new ForbiddenException('You are not authorized to view this export request');
+      throw new ForbiddenException(
+        'You are not authorized to view this export request',
+      );
     }
     return exportRequest;
   }
@@ -97,11 +120,15 @@ export class ExportRequestController {
     const exportRequest = await this.exportRequestService.findOne(id);
 
     if (exportRequest.fromShopId !== req.user.sub) {
-      throw new ForbiddenException('You can only delete your own export requests');
+      throw new ForbiddenException(
+        'You can only delete your own export requests',
+      );
     }
 
     if (exportRequest.status !== ExportRequestStatus.PENDING) {
-      throw new BadRequestException('You can only delete pending export requests');
+      throw new BadRequestException(
+        'You can only delete pending export requests',
+      );
     }
 
     return this.exportRequestService.remove(id);

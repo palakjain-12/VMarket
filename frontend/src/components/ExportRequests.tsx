@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { exportRequestService } from '../services/api';
-import { ExportRequest } from '../types';
+import React, { useState, useEffect } from "react";
+import { exportRequestService } from "../services/api";
+import { ExportRequest } from "../types";
 
 const ExportRequests: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'received' | 'sent'>('received');
+  const [activeTab, setActiveTab] = useState<"received" | "sent">("received");
   const [receivedRequests, setReceivedRequests] = useState<ExportRequest[]>([]);
   const [sentRequests, setSentRequests] = useState<ExportRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchExportRequests();
@@ -23,7 +22,9 @@ const ExportRequests: React.FC = () => {
       setReceivedRequests(receivedResponse.data);
       setSentRequests(sentResponse.data);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch export requests');
+      setError(
+        err.response?.data?.message || "Failed to fetch export requests",
+      );
     } finally {
       setLoading(false);
     }
@@ -34,18 +35,20 @@ const ExportRequests: React.FC = () => {
       await exportRequestService.accept(requestId, message);
       // Force refresh of the data
       await fetchExportRequests(); // Ensure we await this call
-      
+
       // Notify the user
-      alert('Export request accepted successfully! The product has been transferred from the sender\'s inventory to your inventory.');
-      
+      alert(
+        "Export request accepted successfully! The product has been transferred from the sender's inventory to your inventory.",
+      );
+
       // Add a small delay to ensure the backend transaction completes
       setTimeout(() => {
         // Redirect to MyProducts page to see the newly added product
         // Use window.location.href to force a full page reload which will refresh all data
-        window.location.href = '/my-products';
+        window.location.href = "/my-products";
       }, 1000); // 1 second delay
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to accept request');
+      alert(err.response?.data?.message || "Failed to accept request");
     }
   };
 
@@ -54,17 +57,22 @@ const ExportRequests: React.FC = () => {
       await exportRequestService.reject(requestId);
       fetchExportRequests(); // Refresh the list
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to reject request');
+      alert(err.response?.data?.message || "Failed to reject request");
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'PENDING': return 'status-pending';
-      case 'ACCEPTED': return 'status-accepted';
-      case 'REJECTED': return 'status-rejected';
-      case 'COMPLETED': return 'status-completed';
-      default: return '';
+      case "PENDING":
+        return "status-pending";
+      case "ACCEPTED":
+        return "status-accepted";
+      case "REJECTED":
+        return "status-rejected";
+      case "COMPLETED":
+        return "status-completed";
+      default:
+        return "";
     }
   };
 
@@ -81,21 +89,21 @@ const ExportRequests: React.FC = () => {
       <div className="tabs-container">
         <div className="tabs">
           <button
-            className={`tab ${activeTab === 'received' ? 'active' : ''}`}
-            onClick={() => setActiveTab('received')}
+            className={`tab ${activeTab === "received" ? "active" : ""}`}
+            onClick={() => setActiveTab("received")}
           >
             Received ({receivedRequests.length})
           </button>
           <button
-            className={`tab ${activeTab === 'sent' ? 'active' : ''}`}
-            onClick={() => setActiveTab('sent')}
+            className={`tab ${activeTab === "sent" ? "active" : ""}`}
+            onClick={() => setActiveTab("sent")}
           >
             Sent ({sentRequests.length})
           </button>
         </div>
 
         <div className="tab-content">
-          {activeTab === 'received' ? (
+          {activeTab === "received" ? (
             <div className="requests-list">
               {receivedRequests.length === 0 ? (
                 <div className="empty-state">
@@ -107,16 +115,29 @@ const ExportRequests: React.FC = () => {
                   <div key={request.id} className="request-card">
                     <div className="request-header">
                       <h3>{request.product?.name}</h3>
-                      <span className={`status-badge ${getStatusColor(request.status)}`}>
+                      <span
+                        className={`status-badge ${getStatusColor(request.status)}`}
+                      >
                         {request.status}
                       </span>
                     </div>
-                    
+
                     <div className="request-details">
-                      <p><strong>From:</strong> {request.fromShop?.shopName} ({request.fromShop?.name})</p>
-                      <p><strong>Product Owner:</strong> {request.product?.shopkeeper?.shopName} ({request.product?.shopkeeper?.name})</p>
-                      <p><strong>Quantity:</strong> {request.quantity} units</p>
-                      <p><strong>Price:</strong> ₹{request.product?.price}</p>
+                      <p>
+                        <strong>From:</strong> {request.fromShop?.shopName} (
+                        {request.fromShop?.name})
+                      </p>
+                      <p>
+                        <strong>Product Owner:</strong>{" "}
+                        {request.product?.shopkeeper?.shopName} (
+                        {request.product?.shopkeeper?.name})
+                      </p>
+                      <p>
+                        <strong>Quantity:</strong> {request.quantity} units
+                      </p>
+                      <p>
+                        <strong>Price:</strong> ₹{request.product?.price}
+                      </p>
                       {request.message && (
                         <div className="message">
                           <strong>Message:</strong>
@@ -125,12 +146,14 @@ const ExportRequests: React.FC = () => {
                       )}
                     </div>
 
-                    {request.status === 'PENDING' && (
+                    {request.status === "PENDING" && (
                       <div className="request-actions">
                         <button
                           className="btn btn-success"
                           onClick={() => {
-                            const message = prompt('Optional: Add a message for the sender');
+                            const message = prompt(
+                              "Optional: Add a message for the sender",
+                            );
                             handleAccept(request.id, message || undefined);
                           }}
                         >
@@ -160,16 +183,29 @@ const ExportRequests: React.FC = () => {
                   <div key={request.id} className="request-card">
                     <div className="request-header">
                       <h3>{request.product?.name}</h3>
-                      <span className={`status-badge ${getStatusColor(request.status)}`}>
+                      <span
+                        className={`status-badge ${getStatusColor(request.status)}`}
+                      >
                         {request.status}
                       </span>
                     </div>
-                    
+
                     <div className="request-details">
-                      <p><strong>To:</strong> {request.toShop?.shopName} ({request.toShop?.name})</p>
-                      <p><strong>Product Owner:</strong> {request.product?.shopkeeper?.shopName} ({request.product?.shopkeeper?.name})</p>
-                      <p><strong>Quantity:</strong> {request.quantity} units</p>
-                      <p><strong>Price:</strong> ₹{request.product?.price}</p>
+                      <p>
+                        <strong>To:</strong> {request.toShop?.shopName} (
+                        {request.toShop?.name})
+                      </p>
+                      <p>
+                        <strong>Product Owner:</strong>{" "}
+                        {request.product?.shopkeeper?.shopName} (
+                        {request.product?.shopkeeper?.name})
+                      </p>
+                      <p>
+                        <strong>Quantity:</strong> {request.quantity} units
+                      </p>
+                      <p>
+                        <strong>Price:</strong> ₹{request.product?.price}
+                      </p>
                       {request.message && (
                         <div className="message">
                           <strong>Message:</strong>

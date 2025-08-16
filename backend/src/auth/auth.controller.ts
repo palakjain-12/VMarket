@@ -13,13 +13,17 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  async register(@Body() createShopkeeperDto: CreateShopkeeperDto): Promise<AuthResponseDto> {
+  async register(
+    @Body() createShopkeeperDto: CreateShopkeeperDto,
+  ): Promise<AuthResponseDto> {
     return this.authService.register(createShopkeeperDto);
   }
 
   @Public()
   @Post('login')
-  async login(@Body() loginShopkeeperDto: LoginShopkeeperDto): Promise<AuthResponseDto> {
+  async login(
+    @Body() loginShopkeeperDto: LoginShopkeeperDto,
+  ): Promise<AuthResponseDto> {
     return this.authService.login(loginShopkeeperDto);
   }
 

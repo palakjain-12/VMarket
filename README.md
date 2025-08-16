@@ -24,11 +24,13 @@ The easiest way to run the application is using Docker. We've provided a complet
 2. Run the test script:
 
    **For Windows:**
+
    ```powershell
    .\docker-test.ps1
    ```
 
    **For Linux/Mac:**
+
    ```bash
    ./docker-test.sh
    ```
@@ -42,11 +44,13 @@ For more detailed instructions, see [Docker Setup Documentation](./README.docker
 ### Backend
 
 1. Navigate to the backend directory:
+
    ```bash
    cd backend
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
@@ -64,11 +68,13 @@ For more detailed instructions, see [Docker Setup Documentation](./README.docker
 ### Frontend
 
 1. Navigate to the frontend directory:
+
    ```bash
    cd frontend
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
@@ -88,17 +94,20 @@ For more detailed instructions, see [Docker Setup Documentation](./README.docker
 ## Technologies
 
 ### Frontend
+
 - React
 - TypeScript
 - Axios for API requests
 - React Router for navigation
 
 ### Backend
+
 - NestJS
 - PostgreSQL with Prisma ORM
 - JWT authentication
 - Class-validator for request validation
 
 ### DevOps
+
 - Docker and Docker Compose
 - Nginx for serving the frontend

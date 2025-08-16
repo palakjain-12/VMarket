@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { productService, shopkeeperService } from '../services/api';
-import { Product, Shopkeeper } from '../types';
-import ProductCard from './ProductCard';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { productService, shopkeeperService } from "../services/api";
+import { Product, Shopkeeper } from "../types";
+import ProductCard from "./ProductCard";
+import { useAuth } from "../contexts/AuthContext";
 
 const ShopProducts: React.FC = () => {
   const { shopId } = useParams<{ shopId: string }>();
@@ -11,7 +11,7 @@ const ShopProducts: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [shop, setShop] = useState<Shopkeeper | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (shopId) {
@@ -23,13 +23,13 @@ const ShopProducts: React.FC = () => {
     try {
       const [shopResponse, productsResponse] = await Promise.all([
         shopkeeperService.getById(shopId!),
-        productService.getByShop(shopId!)
+        productService.getByShop(shopId!),
       ]);
-      
+
       setShop(shopResponse);
       setProducts(productsResponse.data);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch shop data');
+      setError(err.response?.data?.message || "Failed to fetch shop data");
     } finally {
       setLoading(false);
     }
@@ -50,12 +50,20 @@ const ShopProducts: React.FC = () => {
               </Link>
             </div>
           </div>
-          
+
           <div className="shop-details card">
             <div className="shop-info">
-              <p><strong>Owner:</strong> {shop.name}</p>
-              <p><strong>Address:</strong> {shop.address}</p>
-              {shop.phone && <p><strong>Phone:</strong> {shop.phone}</p>}
+              <p>
+                <strong>Owner:</strong> {shop.name}
+              </p>
+              <p>
+                <strong>Address:</strong> {shop.address}
+              </p>
+              {shop.phone && (
+                <p>
+                  <strong>Phone:</strong> {shop.phone}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -66,7 +74,7 @@ const ShopProducts: React.FC = () => {
           <h2>Available Products</h2>
           <span className="badge">{products.length}</span>
         </div>
-        
+
         {products.length === 0 ? (
           <div className="empty-state">
             <div className="icon">🛒</div>
@@ -78,11 +86,11 @@ const ShopProducts: React.FC = () => {
             {products.map((product) => {
               // Only show export button if the product doesn't belong to the current user
               const showExportButton = user?.id !== product.shopkeeper?.id;
-              
+
               return (
-                <ProductCard 
-                  key={product.id} 
-                  product={product} 
+                <ProductCard
+                  key={product.id}
+                  product={product}
                   showActions={false}
                   showExportButton={showExportButton}
                 />

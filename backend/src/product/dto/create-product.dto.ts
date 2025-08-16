@@ -1,5 +1,12 @@
 // backend/src/product/dto/create-product.dto.ts
-import { IsNotEmpty, IsString, IsNumber, IsOptional, IsDateString, IsPositive } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsDateString,
+  IsPositive,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateProductDto {

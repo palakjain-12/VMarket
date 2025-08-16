@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -33,10 +37,11 @@ export class ProductService {
       });
       return product;
     } catch (error) {
-  console.error('❌ Product creation failed:', error);
-  throw new BadRequestException(error.message || 'Failed to create product');
-}
-
+      console.error('❌ Product creation failed:', error);
+      throw new BadRequestException(
+        error.message || 'Failed to create product',
+      );
+    }
   }
 
   /* ------------------------------------------------------------------ */
@@ -60,7 +65,7 @@ export class ProductService {
     ]);
 
     // Get all pending export requests for these products
-    const productIds = products.map(product => product.id);
+    const productIds = products.map((product) => product.id);
     const pendingExportRequests = await this.prisma.exportRequest.findMany({
       where: {
         productId: { in: productIds },
@@ -74,7 +79,7 @@ export class ProductService {
 
     // Create a map of product ID to pending quantity
     const pendingQuantityMap = {};
-    pendingExportRequests.forEach(request => {
+    pendingExportRequests.forEach((request) => {
       if (!pendingQuantityMap[request.productId]) {
         pendingQuantityMap[request.productId] = 0;
       }
@@ -82,11 +87,14 @@ export class ProductService {
     });
 
     // Add available quantity to each product
-    const productsWithAvailableQuantity = products.map(product => ({
+    const productsWithAvailableQuantity = products.map((product) => ({
       ...product,
-      availableQuantity: Math.max(0, product.quantity - (pendingQuantityMap[product.id] || 0)),
+      availableQuantity: Math.max(
+        0,
+        product.quantity - (pendingQuantityMap[product.id] || 0),
+      ),
     }));
-    
+
     // Remove the debug logging as it's no longer needed
     // The issue is not with missing products, but with how we're fetching them
 
@@ -115,7 +123,7 @@ export class ProductService {
       },
     });
     if (!product) throw new NotFoundException('Product not found');
-    
+
     // Get pending export requests for this product to calculate actual available quantity
     const pendingExportRequests = await this.prisma.exportRequest.findMany({
       where: {
@@ -126,19 +134,19 @@ export class ProductService {
         quantity: true,
       },
     });
-    
+
     // Calculate total quantity in pending export requests
     const pendingQuantity = pendingExportRequests.reduce(
-      (total, request) => total + request.quantity, 
-      0
+      (total, request) => total + request.quantity,
+      0,
     );
-    
+
     // Create a new product object with the available quantity
     const productWithAvailableQuantity = {
       ...product,
       availableQuantity: Math.max(0, product.quantity - pendingQuantity),
     };
-    
+
     return productWithAvailableQuantity;
   }
 
@@ -154,18 +162,19 @@ export class ProductService {
         skip,
         take: limit,
         where: { shopkeeperId },
-        include: { shopkeeper: { select: { id: true, name: true, shopName: true } } },
+        include: {
+          shopkeeper: { select: { id: true, name: true, shopName: true } },
+        },
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.product.count({ where: { shopkeeperId } }),
     ]);
-    
+
     // We don't need to fetch accepted export requests separately
     // The products should already be in the shop's inventory when an export request is accepted
 
-
     // Get all pending export requests for these products
-    const productIds = products.map(product => product.id);
+    const productIds = products.map((product) => product.id);
     const pendingExportRequests = await this.prisma.exportRequest.findMany({
       where: {
         productId: { in: productIds },
@@ -179,7 +188,7 @@ export class ProductService {
 
     // Create a map of product ID to pending quantity
     const pendingQuantityMap = {};
-    pendingExportRequests.forEach(request => {
+    pendingExportRequests.forEach((request) => {
       if (!pendingQuantityMap[request.productId]) {
         pendingQuantityMap[request.productId] = 0;
       }
@@ -187,9 +196,12 @@ export class ProductService {
     });
 
     // Add available quantity to each product
-    const productsWithAvailableQuantity = products.map(product => ({
+    const productsWithAvailableQuantity = products.map((product) => ({
       ...product,
-      availableQuantity: Math.max(0, product.quantity - (pendingQuantityMap[product.id] || 0)),
+      availableQuantity: Math.max(
+        0,
+        product.quantity - (pendingQuantityMap[product.id] || 0),
+      ),
     }));
 
     return {
@@ -209,12 +221,18 @@ export class ProductService {
           ...(updateDto.name && { name: updateDto.name }),
           ...(updateDto.description && { description: updateDto.description }),
           ...(updateDto.price && { price: updateDto.price }),
-          ...(updateDto.quantity !== undefined && { quantity: updateDto.quantity }),
+          ...(updateDto.quantity !== undefined && {
+            quantity: updateDto.quantity,
+          }),
           ...(updateDto.category && { category: updateDto.category }),
-          ...(updateDto.expiryDate && { expiryDate: new Date(updateDto.expiryDate) }),
+          ...(updateDto.expiryDate && {
+            expiryDate: new Date(updateDto.expiryDate),
+          }),
           updatedAt: new Date(),
         },
-        include: { shopkeeper: { select: { id: true, name: true, shopName: true } } },
+        include: {
+          shopkeeper: { select: { id: true, name: true, shopName: true } },
+        },
       });
       return product;
     } catch {
@@ -260,7 +278,9 @@ export class ProductService {
         skip,
         take: limit,
         where: searchWhere,
-        include: { shopkeeper: { select: { id: true, name: true, shopName: true } } },
+        include: {
+          shopkeeper: { select: { id: true, name: true, shopName: true } },
+        },
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.product.count({ where: searchWhere }),
@@ -290,7 +310,9 @@ export class ProductService {
         skip,
         take: limit,
         where: filter,
-        include: { shopkeeper: { select: { id: true, name: true, shopName: true } } },
+        include: {
+          shopkeeper: { select: { id: true, name: true, shopName: true } },
+        },
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.product.count({ where: filter }),
@@ -310,7 +332,9 @@ export class ProductService {
       const product = await this.prisma.product.update({
         where: { id },
         data: { quantity, updatedAt: new Date() },
-        include: { shopkeeper: { select: { id: true, name: true, shopName: true } } },
+        include: {
+          shopkeeper: { select: { id: true, name: true, shopName: true } },
+        },
       });
       return product;
     } catch {
@@ -338,7 +362,9 @@ export class ProductService {
         skip,
         take: limit,
         where: filter,
-        include: { shopkeeper: { select: { id: true, name: true, shopName: true } } },
+        include: {
+          shopkeeper: { select: { id: true, name: true, shopName: true } },
+        },
         orderBy: { expiryDate: 'asc' },
       }),
       this.prisma.product.count({ where: filter }),

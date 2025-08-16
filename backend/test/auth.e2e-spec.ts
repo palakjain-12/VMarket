@@ -23,7 +23,7 @@ describe('AuthController (e2e)', () => {
           name: 'John Doe',
           email: 'john@example.com',
           password: 'password123',
-          shopName: 'John\'s Shop',
+          shopName: "John's Shop",
           phone: '1234567890',
         })
         .expect(201)
@@ -41,7 +41,7 @@ describe('AuthController (e2e)', () => {
           name: 'John Doe',
           email: 'invalid-email',
           password: 'password123',
-          shopName: 'John\'s Shop',
+          shopName: "John's Shop",
           phone: '1234567890',
         })
         .expect(400);
@@ -51,15 +51,13 @@ describe('AuthController (e2e)', () => {
   describe('POST /auth/login', () => {
     it('should login with valid credentials', async () => {
       // First register a user
-      await request(app.getHttpServer())
-        .post('/auth/register')
-        .send({
-          name: 'Jane Doe',
-          email: 'jane@example.com',
-          password: 'password123',
-          shopName: 'Jane\'s Shop',
-          phone: '1234567890',
-        });
+      await request(app.getHttpServer()).post('/auth/register').send({
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+        password: 'password123',
+        shopName: "Jane's Shop",
+        phone: '1234567890',
+      });
 
       // Then try to login
       return request(app.getHttpServer())

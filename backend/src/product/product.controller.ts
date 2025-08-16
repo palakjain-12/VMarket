@@ -45,7 +45,10 @@ export class ProductController {
   }
 
   @Get('shop/:shopId')
-  async findByShop(@Param('shopId') shopId: string, @Query() paginationDto: PaginationDto) {
+  async findByShop(
+    @Param('shopId') shopId: string,
+    @Query() paginationDto: PaginationDto,
+  ) {
     // Fixed: Use shopId as string, not number
     return this.productService.findByShopkeeper(shopId, paginationDto);
   }
@@ -61,18 +64,22 @@ export class ProductController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto, @Request() req) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+    @Request() req,
+  ) {
     // Fixed: Use id as string, not number
     // Verify the product belongs to the authenticated user
     const product = await this.productService.findOne(id);
     if (!product) {
       throw new NotFoundException('Product not found');
     }
-    
+
     if (product.shopkeeperId !== req.user.sub) {
       throw new BadRequestException('You can only update your own products');
     }
-    
+
     return this.productService.update(id, updateProductDto);
   }
 
@@ -84,16 +91,19 @@ export class ProductController {
     if (!product) {
       throw new NotFoundException('Product not found');
     }
-    
+
     if (product.shopkeeperId !== req.user.sub) {
       throw new BadRequestException('You can only delete your own products');
     }
-    
+
     return this.productService.remove(id);
   }
 
   @Get('search/:query')
-  async searchProducts(@Param('query') query: string, @Query() paginationDto: PaginationDto) {
+  async searchProducts(
+    @Param('query') query: string,
+    @Query() paginationDto: PaginationDto,
+  ) {
     if (!query || query.trim().length === 0) {
       throw new BadRequestException('Search query cannot be empty');
     }
@@ -101,7 +111,10 @@ export class ProductController {
   }
 
   @Get('category/:category')
-  async findByCategory(@Param('category') category: string, @Query() paginationDto: PaginationDto) {
+  async findByCategory(
+    @Param('category') category: string,
+    @Query() paginationDto: PaginationDto,
+  ) {
     if (!category || category.trim().length === 0) {
       throw new BadRequestException('Category cannot be empty');
     }
@@ -112,23 +125,23 @@ export class ProductController {
   async updateQuantity(
     @Param('id') id: string,
     @Body('quantity') quantity: number,
-    @Request() req
+    @Request() req,
   ) {
     // Fixed: Use id as string, not number
     if (quantity < 0) {
       throw new BadRequestException('Quantity cannot be negative');
     }
-    
+
     // Verify the product belongs to the authenticated user
     const product = await this.productService.findOne(id);
     if (!product) {
       throw new NotFoundException('Product not found');
     }
-    
+
     if (product.shopkeeperId !== req.user.sub) {
       throw new BadRequestException('You can only update your own products');
     }
-    
+
     return this.productService.updateQuantity(id, quantity);
   }
 }

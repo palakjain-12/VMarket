@@ -10,7 +10,7 @@ export default () => ({
 
   /** Database */
   database: {
-    url: process.env.DATABASE_URL ?? '',                // empty string = “unset” sentinel
+    url: process.env.DATABASE_URL ?? '', // empty string = “unset” sentinel
     maxConnections: parseInt(process.env.DB_MAX_CONNECTIONS ?? '10', 10),
     minConnections: parseInt(process.env.DB_MIN_CONNECTIONS ?? '2', 10),
   },

@@ -12,15 +12,17 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(createShopkeeperDto: CreateShopkeeperDto): Promise<AuthResponseDto> {
+  async register(
+    createShopkeeperDto: CreateShopkeeperDto,
+  ): Promise<AuthResponseDto> {
     const shopkeeper = await this.shopkeeperService.create(createShopkeeperDto);
-    
-    const payload = { 
-      email: shopkeeper.email, 
+
+    const payload = {
+      email: shopkeeper.email,
       sub: shopkeeper.id,
-      shopName: shopkeeper.shopName 
+      shopName: shopkeeper.shopName,
     };
-    
+
     const access_token = this.jwtService.sign(payload);
 
     return {
@@ -36,7 +38,9 @@ export class AuthService {
     };
   }
 
-  async login(loginShopkeeperDto: LoginShopkeeperDto): Promise<AuthResponseDto> {
+  async login(
+    loginShopkeeperDto: LoginShopkeeperDto,
+  ): Promise<AuthResponseDto> {
     const { email, password } = loginShopkeeperDto;
 
     const shopkeeper = await this.shopkeeperService.findByEmail(email);
@@ -53,12 +57,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { 
-      email: shopkeeper.email, 
+    const payload = {
+      email: shopkeeper.email,
       sub: shopkeeper.id,
-      shopName: shopkeeper.shopName 
+      shopName: shopkeeper.shopName,
     };
-    
+
     const access_token = this.jwtService.sign(payload);
 
     return {

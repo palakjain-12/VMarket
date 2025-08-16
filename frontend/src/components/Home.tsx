@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { shopkeeperService } from '../services/api';
-import { Shopkeeper } from '../types';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { shopkeeperService } from "../services/api";
+import { Shopkeeper } from "../types";
+import { useAuth } from "../contexts/AuthContext";
 
 const Home: React.FC = () => {
   const [shops, setShops] = useState<Shopkeeper[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { user } = useAuth();
 
   useEffect(() => {
@@ -19,24 +19,26 @@ const Home: React.FC = () => {
       const response = await shopkeeperService.getAll();
       setShops(response.data);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch shops');
+      setError(err.response?.data?.message || "Failed to fetch shops");
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return (
-    <div className="loading">
-      <div className="loading-spinner"></div>
-      <p>Loading shops...</p>
-    </div>
-  );
-  
-  if (error) return (
-    <div className="error">
-      <p>Error: {error}</p>
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="loading">
+        <div className="loading-spinner"></div>
+        <p>Loading shops...</p>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="error">
+        <p>Error: {error}</p>
+      </div>
+    );
 
   return (
     <div className="home">
@@ -81,9 +83,17 @@ const Home: React.FC = () => {
             shops.map((shop) => (
               <div key={shop.id} className="shop-card">
                 <h3>{shop.shopName}</h3>
-                <p><strong>Owner:</strong> {shop.name}</p>
-                <p><strong>Address:</strong> {shop.address}</p>
-                {shop.phone && <p><strong>Phone:</strong> {shop.phone}</p>}
+                <p>
+                  <strong>Owner:</strong> {shop.name}
+                </p>
+                <p>
+                  <strong>Address:</strong> {shop.address}
+                </p>
+                {shop.phone && (
+                  <p>
+                    <strong>Phone:</strong> {shop.phone}
+                  </p>
+                )}
                 <Link to={`/shop/${shop.id}`} className="btn btn-primary">
                   View Products
                 </Link>

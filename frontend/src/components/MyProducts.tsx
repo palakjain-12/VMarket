@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { productService } from '../services/api';
-import { Product } from '../types';
-import ProductCard from './ProductCard';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { productService } from "../services/api";
+import { Product } from "../types";
+import ProductCard from "./ProductCard";
 
 const MyProducts: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchMyProducts();
@@ -20,7 +20,7 @@ const MyProducts: React.FC = () => {
       const response = await productService.getMyProducts();
       setProducts(response.data);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch products');
+      setError(err.response?.data?.message || "Failed to fetch products");
     } finally {
       setLoading(false);
     }
