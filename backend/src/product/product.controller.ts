@@ -8,7 +8,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Request,
   Query,
   BadRequestException,
   NotFoundException,
@@ -18,6 +17,13 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+
+interface JwtPayload {
+  email: string;
+  sub: number;
+  shopName: string;
+}
 
 @Controller('products')
 @UseGuards(JwtAuthGuard)
@@ -25,11 +31,14 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post()
-  async create(@Body() createProductDto: CreateProductDto, @Request() req) {
+  async create(
+    @Body() createProductDto: CreateProductDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
     // Add the shopkeeper ID from the authenticated user
     const productData = {
       ...createProductDto,
-      shopkeeperId: req.user.sub,
+      shopkeeperId: user.sub.toString(),
     };
     return this.productService.create(productData);
   }
@@ -40,8 +49,14 @@ export class ProductController {
   }
 
   @Get('my-products')
-  async findMyProducts(@Request() req, @Query() paginationDto: PaginationDto) {
-    return this.productService.findByShopkeeper(req.user.sub, paginationDto);
+  async findMyProducts(
+    @CurrentUser() user: JwtPayload,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    return this.productService.findByShopkeeper(
+      user.sub.toString(),
+      paginationDto,
+    );
   }
 
   @Get('shop/:shopId')
@@ -67,7 +82,7 @@ export class ProductController {
   async update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
-    @Request() req,
+    @CurrentUser() user: JwtPayload,
   ) {
     // Fixed: Use id as string, not number
     // Verify the product belongs to the authenticated user
@@ -76,7 +91,7 @@ export class ProductController {
       throw new NotFoundException('Product not found');
     }
 
-    if (product.shopkeeperId !== req.user.sub) {
+    if (product.shopkeeperId !== user.sub.toString()) {
       throw new BadRequestException('You can only update your own products');
     }
 
@@ -84,7 +99,7 @@ export class ProductController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string, @Request() req) {
+  async remove(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
     // Fixed: Use id as string, not number
     // Verify the product belongs to the authenticated user
     const product = await this.productService.findOne(id);
@@ -92,7 +107,7 @@ export class ProductController {
       throw new NotFoundException('Product not found');
     }
 
-    if (product.shopkeeperId !== req.user.sub) {
+    if (product.shopkeeperId !== user.sub.toString()) {
       throw new BadRequestException('You can only delete your own products');
     }
 
@@ -125,7 +140,7 @@ export class ProductController {
   async updateQuantity(
     @Param('id') id: string,
     @Body('quantity') quantity: number,
-    @Request() req,
+    @CurrentUser() user: JwtPayload,
   ) {
     // Fixed: Use id as string, not number
     if (quantity < 0) {
@@ -138,7 +153,7 @@ export class ProductController {
       throw new NotFoundException('Product not found');
     }
 
-    if (product.shopkeeperId !== req.user.sub) {
+    if (product.shopkeeperId !== user.sub.toString()) {
       throw new BadRequestException('You can only update your own products');
     }
 

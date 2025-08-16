@@ -15,7 +15,7 @@ export class AppService {
       await this.prisma.$queryRaw`SELECT 1`;
       return 'Database connection successful!';
     } catch (error) {
-      return `Database connection failed: ${error.message}`;
+      return `Database connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
     }
   }
 }

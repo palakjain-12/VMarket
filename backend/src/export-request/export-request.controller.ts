@@ -8,7 +8,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Request,
   Query,
   BadRequestException,
   ForbiddenException,
@@ -20,6 +19,13 @@ import { RejectExportRequestDto } from './dto/reject-export-request.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { ExportRequestStatus } from '@prisma/client';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+
+interface JwtPayload {
+  email: string;
+  sub: number;
+  shopName: string;
+}
 
 @Controller('export-requests')
 @UseGuards(JwtAuthGuard)
@@ -29,11 +35,11 @@ export class ExportRequestController {
   @Post()
   async create(
     @Body() createExportRequestDto: CreateExportRequestDto,
-    @Request() req,
+    @CurrentUser() user: JwtPayload,
   ) {
     return this.exportRequestService.create(
       createExportRequestDto,
-      req.user.sub,
+      user.sub.toString(),
     );
   }
 
@@ -43,47 +49,56 @@ export class ExportRequestController {
   }
 
   @Get('my-requests')
-  async findMyRequests(@Request() req, @Query() paginationDto: PaginationDto) {
+  async findMyRequests(
+    @CurrentUser() user: JwtPayload,
+    @Query() paginationDto: PaginationDto,
+  ) {
     return this.exportRequestService.findMyRequests(
-      req.user.sub,
+      user.sub.toString(),
       paginationDto,
     );
   }
 
   @Get('pending-for-me')
   async findPendingForMe(
-    @Request() req,
+    @CurrentUser() user: JwtPayload,
     @Query() paginationDto: PaginationDto,
   ) {
     return this.exportRequestService.findRequestsForMe(
-      req.user.sub,
+      user.sub.toString(),
       paginationDto,
     );
   }
 
   // ADD THESE MISSING ENDPOINTS FOR FRONTEND COMPATIBILITY
   @Get('received')
-  async getReceived(@Request() req, @Query() paginationDto: PaginationDto) {
+  async getReceived(
+    @CurrentUser() user: JwtPayload,
+    @Query() paginationDto: PaginationDto,
+  ) {
     return this.exportRequestService.findRequestsForMe(
-      req.user.sub,
+      user.sub.toString(),
       paginationDto,
     );
   }
 
   @Get('sent')
-  async getSent(@Request() req, @Query() paginationDto: PaginationDto) {
+  async getSent(
+    @CurrentUser() user: JwtPayload,
+    @Query() paginationDto: PaginationDto,
+  ) {
     return this.exportRequestService.findMyRequests(
-      req.user.sub,
+      user.sub.toString(),
       paginationDto,
     );
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string, @Request() req) {
+  async findOne(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
     const exportRequest = await this.exportRequestService.findOne(id);
     if (
-      exportRequest.fromShopId !== req.user.sub &&
-      exportRequest.toShopId !== req.user.sub
+      exportRequest.fromShopId !== user.sub.toString() &&
+      exportRequest.toShopId !== user.sub.toString()
     ) {
       throw new ForbiddenException(
         'You are not authorized to view this export request',
@@ -95,31 +110,42 @@ export class ExportRequestController {
   @Patch(':id/accept')
   async acceptRequest(
     @Param('id') id: string,
-    @Request() req,
+    @CurrentUser() user: JwtPayload,
     @Body() acceptDto: AcceptExportRequestDto,
   ) {
-    return this.exportRequestService.acceptRequest(id, req.user.sub, acceptDto);
+    return this.exportRequestService.acceptRequest(
+      id,
+      user.sub.toString(),
+      acceptDto,
+    );
   }
 
   @Patch(':id/reject')
   async rejectRequest(
     @Param('id') id: string,
-    @Request() req,
+    @CurrentUser() user: JwtPayload,
     @Body() rejectDto: RejectExportRequestDto,
   ) {
-    return this.exportRequestService.rejectRequest(id, req.user.sub, rejectDto);
+    return this.exportRequestService.rejectRequest(
+      id,
+      user.sub.toString(),
+      rejectDto,
+    );
   }
 
   @Patch(':id/cancel')
-  async cancelRequest(@Param('id') id: string, @Request() req) {
-    return this.exportRequestService.cancelRequest(id, req.user.sub);
+  async cancelRequest(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.exportRequestService.cancelRequest(id, user.sub.toString());
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string, @Request() req) {
+  async remove(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
     const exportRequest = await this.exportRequestService.findOne(id);
 
-    if (exportRequest.fromShopId !== req.user.sub) {
+    if (exportRequest.fromShopId !== user.sub.toString()) {
       throw new ForbiddenException(
         'You can only delete your own export requests',
       );

@@ -17,6 +17,12 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Public } from '../auth/decorators/public.decorator';
 
+interface JwtPayload {
+  email: string;
+  sub: number;
+  shopName: string;
+}
+
 @Controller('shopkeepers')
 @UseGuards(JwtAuthGuard)
 export class ShopkeeperController {
@@ -34,8 +40,8 @@ export class ShopkeeperController {
   }
 
   @Get('me')
-  getMyProfile(@CurrentUser() user: any) {
-    return this.shopkeeperService.findOne(user.id);
+  getMyProfile(@CurrentUser() user: JwtPayload) {
+    return this.shopkeeperService.findOne(user.sub.toString());
   }
 
   @Get(':id')
@@ -45,10 +51,13 @@ export class ShopkeeperController {
 
   @Patch('me')
   updateMyProfile(
-    @CurrentUser() user: any,
+    @CurrentUser() user: JwtPayload,
     @Body() updateShopkeeperDto: UpdateShopkeeperDto,
   ) {
-    return this.shopkeeperService.update(user.id, updateShopkeeperDto);
+    return this.shopkeeperService.update(
+      user.sub.toString(),
+      updateShopkeeperDto,
+    );
   }
 
   @Patch(':id')

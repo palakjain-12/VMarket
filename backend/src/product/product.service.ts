@@ -39,7 +39,7 @@ export class ProductService {
     } catch (error) {
       console.error('❌ Product creation failed:', error);
       throw new BadRequestException(
-        error.message || 'Failed to create product',
+        error instanceof Error ? error.message : 'Failed to create product',
       );
     }
   }

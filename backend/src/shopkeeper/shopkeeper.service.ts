@@ -41,6 +41,7 @@ export class ShopkeeperService {
     });
 
     // Return shopkeeper without password
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...result } = shopkeeper;
     return result;
   }
@@ -127,6 +128,7 @@ export class ShopkeeperService {
       data: updateShopkeeperDto,
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...result } = updatedShopkeeper;
     return result;
   }

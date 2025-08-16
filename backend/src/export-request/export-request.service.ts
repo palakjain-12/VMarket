@@ -719,7 +719,8 @@ export class ExportRequestService {
     } catch (error) {
       console.error('Transaction failed:', error);
       throw new BadRequestException(
-        'Failed to process export request: ' + error.message,
+        'Failed to process export request: ' +
+          (error instanceof Error ? error.message : 'Unknown error'),
       );
     }
   }

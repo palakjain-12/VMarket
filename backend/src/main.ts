@@ -31,11 +31,14 @@ async function bootstrap() {
   // API prefix
   app.setGlobalPrefix('api');
 
-  const port = configService.get('port') || 3001;
-  const nodeEnv = configService.get('nodeEnv');
+  const port = configService.get<number>('port') || 3001;
+  const nodeEnv = configService.get<string>('nodeEnv');
 
   await app.listen(port);
   console.log(`VMarket API is running on: http://localhost:${port}`);
   console.log(`Environment: ${nodeEnv}`);
 }
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('Failed to start the application:', error);
+  process.exit(1);
+});

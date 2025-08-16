@@ -12,8 +12,6 @@ import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 import { ProductModule } from './product/product.module';
 import { ExportRequestModule } from './export-request/export-request.module';
-import { ExportRequestController } from './export-request/export-request.controller';
-import { ExportRequestService } from './export-request/export-request.service';
 
 @Module({
   imports: [
@@ -21,7 +19,7 @@ import { ExportRequestService } from './export-request/export-request.service';
       isGlobal: true,
       load: [configuration, databaseConfig, jwtConfig],
       envFilePath: ['.env.local', '.env'],
-      validationSchema: null, // You can add Joi validation here later
+      validationSchema: null, // Add your validation schema here if needed
     }),
     PrismaModule,
     AuthModule,
