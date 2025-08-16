@@ -81,7 +81,8 @@ export class AuthService {
   async validateUser(email: string): Promise<any> {
     const shopkeeper = await this.shopkeeperService.findByEmail(email);
     if (shopkeeper) {
-      const { password: _, ...result } = shopkeeper;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password: _password, ...result } = shopkeeper;
       return result;
     }
     return null;

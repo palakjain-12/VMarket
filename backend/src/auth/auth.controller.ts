@@ -7,6 +7,12 @@ import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
+interface JwtPayload {
+  email: string;
+  sub: number;
+  shopName: string;
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -29,7 +35,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@CurrentUser() user: any) {
+  getProfile(@CurrentUser() user: JwtPayload) {
     return {
       message: 'Profile retrieved successfully',
       user,
@@ -38,7 +44,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('validate')
-  validateToken(@CurrentUser() user: any) {
+  validateToken(@CurrentUser() user: JwtPayload) {
     return {
       valid: true,
       user,
